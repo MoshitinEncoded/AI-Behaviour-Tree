@@ -1,0 +1,19 @@
+{
+    "name": "MoshitinEncoded.TreeAI.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:7267a0a8650911a4e9cabe0096093d59",
+        "GUID:23db2f263a357a9439edefba1cce4e34"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

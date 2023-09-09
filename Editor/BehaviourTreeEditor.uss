@@ -1,0 +1,16 @@
+GridBackground {
+    --grid-background-color: rgb(40, 40, 40);
+    --line-color: rgba(0, 0, 0, 0.2);
+    --thick-line-color: rgba(0, 0, 0, 0.2);
+    --spacing: 15;
+}
+
+#unity-dragline-anchor {
+    background-color: rgb(28, 28, 28);
+}
+
+.window-title {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+}
