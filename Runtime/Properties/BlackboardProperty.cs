@@ -12,9 +12,26 @@ namespace MoshitinEncoded.AI
     public class BlackboardProperty : ScriptableObject
     {
         public virtual object Value {get; set;}
+        public string PropertyName
+        {
+            get
+            {
+                return _propertyName;
+            }
+            set
+            {
+                _propertyName = value;
+            }
+        }
+
+        [SerializeField] private string _propertyName;
+
 #if UNITY_EDITOR
         public bool IsExpanded;
         public virtual void DrawProperty(BlackboardSection propertiesSection) { }
+
+        internal BlackboardProperty Clone() =>
+            Instantiate(this);
 #endif
     }
 
@@ -52,7 +69,7 @@ namespace MoshitinEncoded.AI
             // Create the property field
             var blackboardField = new BlackboardField()
             {
-                text = name,
+                text = PropertyName,
                 typeText = typeText
             };
 

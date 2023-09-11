@@ -1,5 +1,3 @@
-using System.Collections;
-using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,19 +71,31 @@ namespace MoshitinEncoded.AI
 
         public BehaviourTree Clone()
         {
+            // Clone behaviour tree and nodes
             BehaviourTree clonedTree = Instantiate(this);
             clonedTree.rootNode = rootNode.Clone();
+
+            // Clone nodes list
             clonedTree.m_Nodes = new List<Node>();
             Traverse(clonedTree.rootNode, node =>
             {
                 clonedTree.m_Nodes.Add(node);
             });
+
+            // Clone properties
+            var clonedProperties = new BlackboardProperty[_properties.Length];
+            for (var i = 0; i < _properties.Length; i++)
+            {
+                clonedProperties[i] = _properties[i].Clone();
+            }
+            clonedTree._properties = clonedProperties;
+
             return clonedTree;
         }
 
         internal T GetProperty<T>(string name)
         {
-            var property = _properties.First(p => p.name == name);
+            var property = _properties.First(p => p.PropertyName == name);
             if (property != null && property.Value is T value)
             {
                 return value;
@@ -99,7 +109,7 @@ namespace MoshitinEncoded.AI
 
         internal void SetProperty<T>(string name, T value)
         {
-            var property = _properties.First(p => p.name == name);
+            var property = _properties.First(p => p.PropertyName == name);
             if (property != null && property.Value is T)
             {
                 property.Value = value;

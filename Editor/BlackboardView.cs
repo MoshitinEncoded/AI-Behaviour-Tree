@@ -58,7 +58,7 @@ namespace MoshitinEncoded.AI.Editor
 
         internal void DeleteProperty(BlackboardField blackboardField)
         {
-            var propertyToDelete = _tree.Properties.First(p => p.name == blackboardField.text);
+            var propertyToDelete = _tree.Properties.First(p => p.PropertyName == blackboardField.text);
 
             if (propertyToDelete != null)
             {
@@ -87,7 +87,7 @@ namespace MoshitinEncoded.AI.Editor
             {
                 foreach (var blackboardRow in this.Query<BlackboardRow>().ToList())
                 {
-                    if (property.name == blackboardRow.Q<BlackboardField>().text)
+                    if (property.PropertyName == blackboardRow.Q<BlackboardField>().text)
                     {
                         property.IsExpanded = blackboardRow.expanded;
                     }
@@ -127,6 +127,7 @@ namespace MoshitinEncoded.AI.Editor
             }
 
             newProperty.name = propertyName;
+            newProperty.PropertyName = propertyName;
 
             // Add the property to the asset
             AssetDatabase.AddObjectToAsset(newProperty, _tree);
@@ -143,10 +144,15 @@ namespace MoshitinEncoded.AI.Editor
 
         private void OnEditFieldText(Blackboard blackboard, VisualElement element, string newName)
         {
+            if (newName == "")
+            {
+                return;
+            }
+
             var fieldToChange = element as BlackboardField;
             if (fieldToChange != null)
             {
-                var property = _tree.Properties.First(p => p.name == fieldToChange.text);
+                var property = _tree.Properties.First(p => p.PropertyName == fieldToChange.text);
 
                 var index = 0;
                 var fieldText = newName;
@@ -161,6 +167,7 @@ namespace MoshitinEncoded.AI.Editor
 
                 Undo.RecordObject(property, "Change Property Name (Behaviour Tree)");
                 property.name = fieldText;
+                property.PropertyName = fieldText;
             }
         }
 
