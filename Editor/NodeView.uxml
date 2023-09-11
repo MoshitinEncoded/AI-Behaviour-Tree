@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
-    <Style src="project://database/Assets/MoshitinEncoded/BehaviourTree/Editor/NodeViewStyle.uss?fileID=7433441132597879392&amp;guid=c1c8f7ef5e0d666459bd226f7edc03ed&amp;type=3#NodeViewStyle" />
+    <Style src="project://database/Packages/com.moshitin-encoded.tree-ai/Editor/NodeViewStyle.uss" />
     <ui:VisualElement name="node-state" picking-mode="Ignore" style="flex-grow: 1;" />
     <ui:VisualElement name="node-border">
         <ui:VisualElement name="contents">

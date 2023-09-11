@@ -13,7 +13,7 @@ namespace MoshitinEncoded.AI
 
         private readonly SerializedObject _serializedNode;
 
-        public NodeView(Node node) : base("Assets/MoshitinEncoded/BehaviourTree/Scripts/Editor/NodeView.uxml")
+        public NodeView(Node node) : base("Packages/com.moshitin-encoded.tree-ai/Editor/NodeView.uxml")
         {
             Node = node;
             title = node.name;

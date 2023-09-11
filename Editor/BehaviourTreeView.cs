@@ -29,7 +29,7 @@ public class BehaviourTreeView : GraphView
         this.AddManipulator(new SelectionDragger());
         this.AddManipulator(new RectangleSelector());
 
-        var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/MoshitinEncoded/BehaviourTree/Scripts/Editor/BehaviourTreeEditor.uss");
+        var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.moshitin-encoded.tree-ai/Editor/BehaviourTreeEditor.uss");
         styleSheets.Add(styleSheet);
 
         Undo.undoRedoPerformed += OnUndoRedo;
