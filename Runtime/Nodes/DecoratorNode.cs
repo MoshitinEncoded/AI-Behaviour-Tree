@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MoshitinEncoded.AI
@@ -8,10 +6,18 @@ namespace MoshitinEncoded.AI
     {
         [HideInInspector] public Node child;
 
-        public override Node Clone()
+        public override Node Clone(bool withChild)
         {
             DecoratorNode node = Instantiate(this);
-            node.child = child.Clone();
+            if (withChild && child != null)
+            {
+                node.child = child.Clone();
+            }
+            else
+            {
+                node.child = null;
+            }
+
             return node;
         }
     }

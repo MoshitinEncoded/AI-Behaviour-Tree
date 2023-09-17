@@ -4,6 +4,7 @@ using MoshitinEncoded.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Serialization.Json;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -18,7 +19,13 @@ public class BehaviourTreeView : GraphView
     private NodeSearchWindow _searchWindow;
     private EditorWindow _window;
     private BlackboardView _blackboardView;
-    private BlackboardSection _propertiesSection;
+
+    private Vector2 _mousePosition;
+
+    private void UpdateMousePosition(MouseMoveEvent evt)
+    {
+        _mousePosition = contentViewContainer.WorldToLocal(evt.mousePosition);
+    }
 
     public BehaviourTreeView()
     {
@@ -31,9 +38,208 @@ public class BehaviourTreeView : GraphView
 
         var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.moshitin-encoded.tree-ai/Editor/BehaviourTreeEditor.uss");
         styleSheets.Add(styleSheet);
+        serializeGraphElements += CopyElements;
+        unserializeAndPaste += PasteElements;
 
         Undo.undoRedoPerformed += OnUndoRedo;
         viewTransformChanged += SaveViewTransform;
+
+        RegisterCallback<MouseMoveEvent>(UpdateMousePosition);
+    }
+
+    [Serializable]
+    private class CopySelectionData
+    {
+        public Rect SelectionRect;
+        public NodeCopyData[] NodeCopiesData;
+    }
+
+    [Serializable]
+    private class NodeCopyData
+    {
+        public NodeCopyData() {}
+
+        public NodeCopyData(MoshitinEncoded.AI.Node node, string[] childGuids)
+        {
+            Node = node;
+            ChildGuids = childGuids;
+        }
+
+        public MoshitinEncoded.AI.Node Node;
+        public string[] ChildGuids;
+    }
+
+    private string CopyElements(IEnumerable<GraphElement> elements)
+    {
+        var nodeViews = new List<NodeView>();
+        var edges = new List<Edge>();
+
+        foreach (var element in elements)
+        {
+            if (element is NodeView nodeView && nodeView.Node is not RootNode)
+            {
+                nodeViews.Add(nodeView);
+            }
+            else if (element is Edge edge)
+            {
+                if (edge.input.node != null && 
+                    edge.output.node != null && 
+                    elements.Contains(edge.input.node) && 
+                    elements.Contains(edge.output.node) && 
+                    (edge.output.node as NodeView).Node is not RootNode)
+                {
+                    edges.Add(edge);
+                }
+            }
+        }
+
+        var copies = new Dictionary<NodeView, MoshitinEncoded.AI.Node>();
+
+        foreach (var originalNodeView in nodeViews)
+        {
+            var nodeCopy = originalNodeView.Node.Clone(withChildren: false);
+            nodeCopy.guid = GUID.Generate().ToString();
+            nodeCopy.name = nodeCopy.name.Remove(nodeCopy.name.IndexOf('('));
+
+            copies.Add(
+                key: originalNodeView,
+                value: nodeCopy
+            );
+        }
+
+        var copiesData = new List<NodeCopyData>();
+
+        foreach (var copy in copies)
+        {
+            var childGuids = new List<string>();
+            var connectedEdges = edges.Where(edge => edge.output.node == copy.Key);
+            foreach (var connectedEdge in connectedEdges)
+            {
+                var childNodeView = (NodeView)connectedEdge.input.node;
+                var childCopy = copies[childNodeView];
+                childGuids.Add(childCopy.guid);
+            }
+
+            copiesData.Add(new NodeCopyData(copy.Value, childGuids.ToArray()));
+        }
+
+        var copySelectionData = new CopySelectionData()
+        {
+            NodeCopiesData = copiesData.ToArray(),
+            SelectionRect = CalculateRectToFitElements(nodeViews.ToArray())
+        };
+
+        var parameters = new JsonSerializationParameters()
+        {
+            UserDefinedAdapters = new List<IJsonAdapter>() { new CopyNodeJsonAdapter() }
+        };
+
+        return JsonSerialization.ToJson(copySelectionData, parameters);
+    }
+
+    private class CopyNodeJsonAdapter : IJsonAdapter<NodeCopyData>
+    {
+        public NodeCopyData Deserialize(in JsonDeserializationContext<NodeCopyData> context)
+        {
+            var serializedNode = context.SerializedValue.GetValue("Node");
+            var nodeParams = new JsonSerializationParameters()
+            {
+                DisableRootAdapters = true
+            };
+
+            var node = JsonSerialization.FromJson<MoshitinEncoded.AI.Node>(serializedNode, nodeParams);
+            var childGuids = JsonSerialization.FromJson<string[]>(context.SerializedValue.GetValue("ChildGuids"));
+
+            return new NodeCopyData(node, childGuids);
+        }
+
+        public void Serialize(in JsonSerializationContext<NodeCopyData> context, NodeCopyData value)
+        {
+            context.Writer.WriteBeginObject();
+
+            var nodeParams = new JsonSerializationParameters()
+            {
+                DisableRootAdapters = true
+            };
+
+            context.Writer.WriteKeyValueLiteral("Node", JsonSerialization.ToJson(value.Node, nodeParams));
+
+            context.Writer.WriteBeginArray("ChildGuids");
+            foreach (var nodeGuid in value.ChildGuids)
+            {
+                context.Writer.WriteValue(nodeGuid);
+            }
+            context.Writer.WriteEndArray();
+
+            context.Writer.WriteEndObject();
+        }
+    }
+
+    private Rect CalculateRectToFitElements(GraphElement[] elements)
+    {
+        Rect rectToFit = new();
+        bool reachedFirstElement = false;
+        foreach (var element in elements)
+        {
+            if (!reachedFirstElement)
+            {
+                rectToFit = element.GetPosition();
+                reachedFirstElement = true;
+            }
+            else
+            {
+                rectToFit = RectUtils.Encompass(rectToFit, element.GetPosition());
+            }
+        }
+
+        return rectToFit;
+    }
+
+    private void PasteElements(string operationName, string data)
+    {
+        var parameters = new JsonSerializationParameters()
+        {
+            UserDefinedAdapters = new List<IJsonAdapter>() { new CopyNodeJsonAdapter() }
+        };
+
+        var copySelectionData = JsonSerialization.FromJson<CopySelectionData>(data, parameters);
+        var nodeCopies = copySelectionData.NodeCopiesData;
+
+        // Paste nodes
+        foreach (var nodeCopy in nodeCopies)
+        {
+            var node = nodeCopy.Node;
+            if (operationName == "Duplicate")
+            {
+                node.position += new Vector2(10, 10);
+            }
+            else
+            {
+                node.position = _mousePosition + node.position - copySelectionData.SelectionRect.center;
+            }
+
+            node.name = node.GetType().Name; 
+            AddNode(node, registerUndo: true);
+        }
+
+        ClearSelection();
+
+        // Add node childs
+        foreach (var nodeCopy in nodeCopies)
+        {
+            var parentView = GetNodeView(nodeCopy.Node);
+            AddToSelection(parentView);
+
+            foreach (var childGuid in nodeCopy.ChildGuids)
+            {
+                var childClone = nodeCopies.First(n => n.Node.guid == childGuid).Node;
+                parentView.AddChild(childClone);
+
+                var childCloneView = GetNodeView(childClone);
+                var parentChildEdge = parentView.Output.ConnectTo(childCloneView.Input);
+                AddElement(parentChildEdge);
+            }
+        }
     }
 
     private void OnUndoRedo()
@@ -65,7 +271,7 @@ public class BehaviourTreeView : GraphView
         Add(_blackboardView);
     }
 
-    public NodeView FindNodeView(MoshitinEncoded.AI.Node node) =>
+    public NodeView GetNodeView(MoshitinEncoded.AI.Node node) =>
         GetElementByGuid(node.guid) as NodeView;
 
     internal void PopulateView(BehaviourTree tree)
@@ -106,8 +312,8 @@ public class BehaviourTreeView : GraphView
             var children = _tree.GetChildren(parentNode);
             children.ForEach(childNode =>
             {
-                NodeView parentView = FindNodeView(parentNode);
-                NodeView childView = FindNodeView(childNode);
+                NodeView parentView = GetNodeView(parentNode);
+                NodeView childView = GetNodeView(childNode);
 
                 Edge edge = parentView.Output.ConnectTo(childView.Input);
                 AddElement(edge);
@@ -187,7 +393,7 @@ public class BehaviourTreeView : GraphView
         return graphViewChange;
     }
 
-    public MoshitinEncoded.AI.Node CreateNode(System.Type nodeType, string nodeName, Vector2 position, bool includeUndo = true)
+    public MoshitinEncoded.AI.Node CreateNode(Type nodeType, string nodeTitle, Vector2 position, bool registerUndo = true)
     {
         // Creates the node
         var node = ScriptableObject.CreateInstance(nodeType) as MoshitinEncoded.AI.Node;
@@ -197,20 +403,28 @@ public class BehaviourTreeView : GraphView
             return null;
         }
 
-        node.name = nodeName;
+        node.Title = nodeTitle;
+        node.name = nodeType.Name;
         node.guid = GUID.Generate().ToString();
         node.position = position;
         //node.hideFlags = HideFlags.HideInHierarchy;
 
+        AddNode(node, registerUndo);
+
+        return node;
+    }
+
+    private void AddNode(MoshitinEncoded.AI.Node node, bool registerUndo)
+    {
         // Adds the node to the project
         if (!Application.isPlaying)
         {
             AssetDatabase.AddObjectToAsset(node, _tree);
         }
 
-        if (includeUndo)
+        if (registerUndo)
         {
-            Undo.RegisterCreatedObjectUndo(node, "Behaviour Tree (CreateNode)");
+            Undo.RegisterCreatedObjectUndo(node, "Create Node (Behaviour Tree)");
         }
 
         // Adds the node to the list
@@ -219,7 +433,7 @@ public class BehaviourTreeView : GraphView
         var nodesProperty = _serializedTree.FindProperty("m_Nodes");
         nodesProperty.AddToObjectArray(node);
 
-        if (includeUndo)
+        if (registerUndo)
         {
             _serializedTree.ApplyModifiedProperties();
         }
@@ -229,8 +443,6 @@ public class BehaviourTreeView : GraphView
         }
         
         CreateNodeView(node);
-
-        return node;
     }
 
     private void DeleteNode(MoshitinEncoded.AI.Node node)

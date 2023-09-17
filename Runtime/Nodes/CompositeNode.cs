@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,10 +7,17 @@ namespace MoshitinEncoded.AI
     {
         [HideInInspector] public List<Node> children = new();
 
-        public override Node Clone()
+        public override Node Clone(bool withChildren)
         {
             CompositeNode node = Instantiate(this);
-            node.children = children.ConvertAll(child => child.Clone());
+            if (withChildren)
+            {
+                node.children = children.ConvertAll(child => child.Clone());
+            }
+            else
+            {
+                node.children.Clear();
+            }
 
             return node;
         }

@@ -1,13 +1,16 @@
 using MoshitinEncoded.Editor;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace MoshitinEncoded.AI
 {
     public class NodeView : UnityEditor.Experimental.GraphView.Node
     {
-        public Node Node { get; private set; }
+        [SerializeField] private Node _node;
+        public Node Node => _node;
         public Port Input { get; private set; }
         public Port Output { get; private set; }
 
@@ -15,7 +18,8 @@ namespace MoshitinEncoded.AI
 
         public NodeView(Node node) : base("Packages/com.moshitin-encoded.tree-ai/Editor/NodeView.uxml")
         {
-            Node = node;
+            _node = node;
+
             title = node.name;
             viewDataKey = node.guid;
             if (node is RootNode)
@@ -25,6 +29,13 @@ namespace MoshitinEncoded.AI
             }
             
             _serializedNode = new SerializedObject(node);
+
+            if (node is not RootNode)
+            {
+                var titleLabel = titleContainer.Q<Label>();
+                titleLabel.bindingPath = "Title";
+                titleLabel.Bind(_serializedNode);
+            }
 
             style.left = node.position.x;
             style.top = node.position.y;

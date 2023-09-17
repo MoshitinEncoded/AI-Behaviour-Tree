@@ -51,7 +51,7 @@ namespace MoshitinEncoded.AI.Editor
 
             _behaviourTreeView.CreateNode(
                 nodeType: searchTreeEntry.userData as Type,
-                nodeName: searchTreeEntry.content.text,
+                nodeTitle: searchTreeEntry.content.text,
                 position: localMousePosition);
 
             return true;

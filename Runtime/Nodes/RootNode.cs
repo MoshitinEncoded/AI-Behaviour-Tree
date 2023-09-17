@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MoshitinEncoded.AI
@@ -20,10 +18,14 @@ namespace MoshitinEncoded.AI
         protected override State OnUpdate() =>
             child.Update();
 
-        public override Node Clone()
+        public override Node Clone(bool withChild)
         {
             RootNode rootNode = Instantiate(this);
-            rootNode.child = child.Clone();
+            if (child != null)
+            {
+                rootNode.child = child.Clone();
+            }
+            
             return rootNode;
         }
     }

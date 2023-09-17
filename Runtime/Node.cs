@@ -11,6 +11,7 @@ namespace MoshitinEncoded.AI
             Success
         }
 
+        public string Title = "Node";
         [HideInInspector] public State state = State.Running;
         [HideInInspector] public bool Started { get; private set; } = false;
 #if UNITY_EDITOR
@@ -41,7 +42,7 @@ namespace MoshitinEncoded.AI
         internal void Bind(BehaviourMachine behaviourMachine) =>
             BehaviourMachine = behaviourMachine;
 
-        public virtual Node Clone() => Instantiate(this);
+        public virtual Node Clone(bool withChildren = true) => Instantiate(this);
         protected abstract void OnStart();
         protected abstract State OnUpdate();
         protected abstract void OnStop();
