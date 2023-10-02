@@ -1,11 +1,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MoshitinEncoded.AI
+namespace MoshitinEncoded.BehaviourTree
 {
-    public abstract class CompositeNode : Node
+    public abstract class CompositeNode : Node, IParentNode
     {
         [HideInInspector] public List<Node> children = new();
+
+        public void AddChild(Node child)
+        {
+            if (child == null)
+            {
+                return;
+            }
+
+            children.Add(child);
+        }
 
         public override Node Clone(bool withChildren)
         {
@@ -21,5 +31,7 @@ namespace MoshitinEncoded.AI
 
             return node;
         }
+
+        public List<Node> GetChildren() => children;
     }
 }

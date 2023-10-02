@@ -1,8 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-namespace MoshitinEncoded.AI
+namespace MoshitinEncoded.BehaviourTree
 {
-    public class RootNode : Node
+    public class RootNode : Node, IParentNode
     {
         [HideInInspector] public Node child;
         protected override void OnStart()
@@ -27,6 +28,24 @@ namespace MoshitinEncoded.AI
             }
             
             return rootNode;
+        }
+
+        public void AddChild(Node child)
+        {
+            if (child != null)
+            {
+                this.child = child;
+            }
+        }
+
+        public List<Node> GetChildren()
+        {
+            if (child != null)
+            {
+                return new List<Node>() { child };
+            }
+
+            return new List<Node>();
         }
     }
 }

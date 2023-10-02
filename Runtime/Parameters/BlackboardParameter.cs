@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -7,54 +8,64 @@ using UnityEditor.UIElements;
 #endif
 using UnityEngine;
 
-namespace MoshitinEncoded.AI
+namespace MoshitinEncoded.BehaviourTree
 {
-    public class BlackboardProperty : ScriptableObject
+    public class BlackboardParameter : ScriptableObject
     {
+        [SerializeField] private string _PropertyName;
         public virtual object Value {get; set;}
         public string PropertyName
         {
             get
             {
-                return _propertyName;
+                return _PropertyName;
             }
             set
             {
-                _propertyName = value;
+                _PropertyName = value;
             }
         }
 
-        [SerializeField] private string _propertyName;
-
+        public virtual bool IsOfType(Type type) { return true; }
 #if UNITY_EDITOR
         public bool IsExpanded;
         public virtual void DrawProperty(BlackboardSection propertiesSection) { }
 
-        internal BlackboardProperty Clone() =>
+        internal BlackboardParameter Clone() =>
             Instantiate(this);
 #endif
     }
 
-    public class BlackboardProperty<T> : BlackboardProperty
+    public class BlackboardParameter<T> : BlackboardParameter
     {
-        [SerializeField] private T _value;
+        [SerializeField] private T _Value;
         public override object Value
         {
-            get => _value;
+            get => _Value;
             set
             {
                 if (value is T newValue)
                 {
-                    _value = newValue;
+                    _Value = newValue;
+                }
+                else if (value == null)
+                {
+                    _Value = default;
                 }
             }
+        }
+
+        public override bool IsOfType(Type type)
+        {
+            var myType = typeof(T);
+            return myType == type || myType.IsSubclassOf(type);
         }
 #if UNITY_EDITOR
         public override void DrawProperty(BlackboardSection propertiesSection)
         {
             // Get the property type text
             string typeText;
-            var propertyAttribute = GetType().GetCustomAttribute<AddPropertyMenuAttribute>();
+            var propertyAttribute = GetType().GetCustomAttribute<AddParameterMenuAttribute>();
 
             if (propertyAttribute != null)
             {
@@ -75,7 +86,7 @@ namespace MoshitinEncoded.AI
 
             // Create the property value field
             var thisSerialized = new SerializedObject(this);
-            var valueProperty = thisSerialized.FindProperty("_value");
+            var valueProperty = thisSerialized.FindProperty("_Value");
 
             var propertyValueField = new PropertyField(valueProperty);
             propertyValueField.Bind(thisSerialized);

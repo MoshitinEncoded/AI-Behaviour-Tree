@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class NodeMenuAttribute : System.Attribute
-{
-    public string Path;
-    public NodeMenuAttribute(string path)
+namespace MoshitinEncoded.BehaviourTree {
+    public class NodeMenuAttribute : System.Attribute
     {
-        this.Path = path;
+        public string Path;
+        public NodeMenuAttribute(string path)
+        {
+            Path = path;
+        }
     }
 }

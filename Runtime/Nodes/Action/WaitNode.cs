@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace MoshitinEncoded.AI
+namespace MoshitinEncoded.BehaviourTree
 {
     [NodeMenu("Action/Wait")]
     public class WaitNode : ActionNode

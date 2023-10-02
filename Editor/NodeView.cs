@@ -1,11 +1,12 @@
-using MoshitinEncoded.Editor;
+using MoshitinEncoded.BehaviourTree;
+using Node = MoshitinEncoded.BehaviourTree.Node;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace MoshitinEncoded.AI
+namespace MoshitinEncoded.Editor.BehaviourTree
 {
     public class NodeView : UnityEditor.Experimental.GraphView.Node
     {
@@ -16,7 +17,7 @@ namespace MoshitinEncoded.AI
 
         private readonly SerializedObject _serializedNode;
 
-        public NodeView(Node node) : base("Packages/com.moshitin-encoded.tree-ai/Editor/NodeView.uxml")
+        public NodeView(Node node) : base("Packages/com.moshitin-encoded.behaviourgraph/Editor/NodeView.uxml")
         {
             _node = node;
 
@@ -36,9 +37,14 @@ namespace MoshitinEncoded.AI
                 titleLabel.bindingPath = "Title";
                 titleLabel.Bind(_serializedNode);
             }
-
-            style.left = node.position.x;
-            style.top = node.position.y;
+            
+            var newPosition = new Rect
+            {
+                position = node.position
+            };
+            base.SetPosition(newPosition);
+            //style.left = node.position.x;
+            //style.top = node.position.y;
 
             CreateInputPorts();
             CreateOutputPorts();

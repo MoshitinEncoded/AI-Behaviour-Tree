@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MoshitinEncoded.AI
+namespace MoshitinEncoded.BehaviourTree
 {
     public abstract class Node : ScriptableObject
     {
@@ -18,7 +18,7 @@ namespace MoshitinEncoded.AI
         [HideInInspector] public string guid;
         [HideInInspector] public Vector2 position;
 #endif
-        protected BehaviourMachine BehaviourMachine { get; private set; }
+        protected BehaviourTreeMachine BehaviourMachine { get; private set; }
 
         public State Update()
         {
@@ -39,7 +39,7 @@ namespace MoshitinEncoded.AI
             return state;
         }
 
-        internal void Bind(BehaviourMachine behaviourMachine) =>
+        internal void Bind(BehaviourTreeMachine behaviourMachine) =>
             BehaviourMachine = behaviourMachine;
 
         public virtual Node Clone(bool withChildren = true) => Instantiate(this);

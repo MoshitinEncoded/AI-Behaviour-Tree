@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace MoshitinEncoded.AI
+namespace MoshitinEncoded.BehaviourTree
 {
     [NodeMenu("Composite/Sequencer")]
     public class SequencerNode : CompositeNode

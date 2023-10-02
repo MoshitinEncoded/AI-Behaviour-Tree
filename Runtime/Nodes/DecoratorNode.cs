@@ -1,10 +1,21 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-namespace MoshitinEncoded.AI
+namespace MoshitinEncoded.BehaviourTree
 {
-    public abstract class DecoratorNode : Node
+    public abstract class DecoratorNode : Node, IParentNode
     {
         [HideInInspector] public Node child;
+
+        public void AddChild(Node child)
+        {
+            if (child == null)
+            {
+                return;
+            }
+
+            this.child = child;
+        }
 
         public override Node Clone(bool withChild)
         {
@@ -19,6 +30,16 @@ namespace MoshitinEncoded.AI
             }
 
             return node;
+        }
+
+        public List<Node> GetChildren()
+        {
+            if (child != null)
+            {
+                return new List<Node>() { child };
+            }
+
+            return new List<Node>();
         }
     }
 }

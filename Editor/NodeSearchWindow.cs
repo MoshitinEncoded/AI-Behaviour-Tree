@@ -1,4 +1,3 @@
-using MoshitinEncoded.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,8 +5,9 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using MoshitinEncoded.BehaviourTree;
 
-namespace MoshitinEncoded.AI.Editor
+namespace MoshitinEncoded.Editor.BehaviourTree
 {
     public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider
     {
@@ -18,11 +18,11 @@ namespace MoshitinEncoded.AI.Editor
             public string[] MenuPathSpliced;
         }
 
-        private BehaviourTreeView _behaviourTreeView;
+        private BehaviourGraphView _behaviourTreeView;
         private EditorWindow _window;
         private Texture2D _icon;
 
-        public void Init(EditorWindow editorWindow, BehaviourTreeView behaviourTreeView)
+        public void Init(EditorWindow editorWindow, BehaviourGraphView behaviourTreeView)
         {
             _behaviourTreeView = behaviourTreeView;
             _window = editorWindow;
@@ -103,7 +103,7 @@ namespace MoshitinEncoded.AI.Editor
 
         private static List<NodeInfo> GetNodesInfo()
         {
-            var nodeTypesCollection = TypeCache.GetTypesDerivedFrom<Node>();
+            var nodeTypesCollection = TypeCache.GetTypesDerivedFrom<MoshitinEncoded.BehaviourTree.Node>();
             var nodesInfo = new List<NodeInfo>();
 
             foreach (var nodeType in nodeTypesCollection)

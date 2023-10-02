@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace MoshitinEncoded.AI
+namespace MoshitinEncoded.BehaviourTree
 {
     [NodeMenu("Decorator/Repeater")]
     public class RepeatNode : DecoratorNode

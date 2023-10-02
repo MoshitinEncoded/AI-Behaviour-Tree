@@ -14,3 +14,7 @@ GridBackground {
     padding-bottom: 4px;
     padding-left: 4px;
 }
+
+BehaviourGraphView {
+    flex-grow: 1;
+}
