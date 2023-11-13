@@ -7,29 +7,50 @@ namespace MoshitinEncoded
     {
         public enum UpdateModeEnum
         {
+            /// <summary>
+            /// The Behaviour Tree is not updated at all. You must call <i>UpdateBehaviourTree</i> yourself.
+            /// </summary>
             None,
+            /// <summary>
+            /// The Behaviour Tree is updated each frame.
+            /// </summary>
             Update,
+            /// <summary>
+            /// The Behaviour Tree is updated each physics frame.
+            /// </summary>
             FixedUpdate
         }
 
         /// <summary>
-        /// Called <b>before</b> the update of the behaviour tree. Useful to update parameters.
+        /// Called after <i>Awake</i> and <i>ChangeBehaviourTree</i> methods. Useful to <b>set</b> parameters.
         /// </summary>
-        public event System.Action BehaviourTreeUpdate;
-
-        [SerializeField, Tooltip("The behaviour that will run on this machine.")]
-        private BehaviourTreeController _BehaviourTree;
-
-        [SerializeField, Tooltip("How the behaviour will be updated each frame.")]
-        private UpdateModeEnum _UpdateMode = UpdateModeEnum.Update;
+        public event System.Action Initialized;
 
         /// <summary>
-        /// The behaviour tree instance running on this machine.
+        /// Called before the Behaviour Tree update. Useful to <b>update</b> parameters.
+        /// </summary>
+        public event System.Action PreUpdate;
+
+        [SerializeField, Tooltip("The Behaviour Tree that will run on this machine.")]
+        private BehaviourTreeController _BehaviourTree;
+
+        [SerializeField, Tooltip("How the Behaviour Tree will be updated.")]
+        private UpdateModeEnum _UpdateMode = UpdateModeEnum.Update;
+
+        private BehaviourTreeController _BehaviourTreeInstance;
+
+        /// <summary>
+        /// The Behaviour Tree asset.
         /// </summary>
         public BehaviourTreeController BehaviourTree => _BehaviourTree;
 
         /// <summary>
-        /// How the behaviour tree will be updated each frame.
+        /// The Behaviour Tree instance running on this machine.
+        /// </summary>
+        public BehaviourTreeController BehaviourTreeInstance => _BehaviourTreeInstance;
+
+        /// <summary>
+        /// How the Behaviour Tree will be updated.
         /// </summary>
         public UpdateModeEnum UpdateMode { get => _UpdateMode; set => _UpdateMode = value; }
 
@@ -45,52 +66,35 @@ namespace MoshitinEncoded
                 return;
             }
 
-            UpdateBehaviour();
+            UpdateBehaviourTree();
         }
 
-        void Update()
+        private void Update()
         {
             if (_UpdateMode != UpdateModeEnum.Update)
             {
                 return;
             }
 
-            UpdateBehaviour();
+            UpdateBehaviourTree();
         }
 
-        /// <summary>
-        /// Updates the behaviour tree.
-        /// </summary>
-        public void UpdateBehaviour()
+        public void UpdateBehaviourTree()
         {
-            if (_BehaviourTree == null)
+            if (_BehaviourTreeInstance == null)
             {
                 return;
             }
 
-            OnBehaviourTreeUpdate();
-            BehaviourTreeUpdate?.Invoke();
-            _BehaviourTree.Update();
+            OnPreUpdate();
+            PreUpdate?.Invoke();
+            _BehaviourTreeInstance.Update();
         }
 
         /// <summary>
-        /// Returns the value of a parameter in the behaviour tree.
+        /// Changes the active Behaviour Tree. This action causes a new initialization.
         /// </summary>
-        /// <typeparam name="T"> The parameter Type. Inheritance is supported. </typeparam>
-        /// <param name="name"> The parameter name. </param>
-        /// <returns> The parameter value if found, <b>default</b> value otherwise. </returns>
-        public T GetParameter<T>(string name) =>
-            _BehaviourTree.GetParameter<T>(name);
-
-        /// <summary>
-        /// Sets the value of a parameter in the behaviour tree.
-        /// </summary>
-        /// <typeparam name="T"> The parameter Type. Inheritance is supported. </typeparam>
-        /// <param name="name"> The parameter name. </param>
-        /// <param name="value"> The parameter value to set. </param>
-        public void SetParameter<T>(string name, T value) => 
-            _BehaviourTree.SetParameter(name, value);
-
+        /// <param name="behaviourTree"></param>
         public void ChangeBehaviourTree(BehaviourTreeController behaviourTree)
         {
             _BehaviourTree = behaviourTree;
@@ -98,20 +102,39 @@ namespace MoshitinEncoded
         }
 
         /// <summary>
-        /// Called <b>after</b> the behaviour tree has been initialized.
+        /// Returns the value of a parameter in the Behaviour Tree.
         /// </summary>
-        protected virtual void OnBehaviourTreeInitialized() {}
+        /// <typeparam name="T"> The parameter Type. Inheritance is supported. </typeparam>
+        /// <param name="name"> The parameter name. </param>
+        /// <returns> The parameter value if found, <b>default</b> value otherwise. </returns>
+        public T GetParameter<T>(string name) =>
+            _BehaviourTreeInstance.GetParameter<T>(name);
 
         /// <summary>
-        /// Called <b>before</b> the update of the behaviour tree. Useful to update parameters.
+        /// Sets the value of a parameter in the Behaviour Tree.
         /// </summary>
-        protected virtual void OnBehaviourTreeUpdate() {}
+        /// <typeparam name="T"> The parameter Type. Inheritance is supported. </typeparam>
+        /// <param name="name"> The parameter name. </param>
+        /// <param name="value"> The parameter value to set. </param>
+        public void SetParameter<T>(string name, T value) => 
+            _BehaviourTreeInstance.SetParameter(name, value);
+
+        /// <summary>
+        /// Called after <i>Awake</i> and <i>ChangeBehaviourTree</i> methods. Useful to <b>set</b> parameters.
+        /// </summary>
+        protected virtual void OnInitialized() {}
+
+        /// <summary>
+        /// Called before the Behaviour Tree update. Useful to <b>update</b> parameters.
+        /// </summary>
+        protected virtual void OnPreUpdate() {}
 
         private void InitializeBehaviourTree()
         {
-            _BehaviourTree = _BehaviourTree.Clone();
-            _BehaviourTree.Bind(this);
-            OnBehaviourTreeInitialized();
+            _BehaviourTreeInstance = _BehaviourTree.Clone();
+            _BehaviourTreeInstance.Bind(this);
+            OnInitialized();
+            Initialized?.Invoke();
         }
     }
 }

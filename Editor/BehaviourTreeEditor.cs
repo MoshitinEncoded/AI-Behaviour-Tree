@@ -12,11 +12,13 @@ namespace MoshitinEncoded.Editor.BehaviourTree
         [SerializeField] private BehaviourTreeController _TreeController;
 
         private BehaviourTreeView _TreeView;
+        private BehaviourTreeController _TreeControllerActive;
 
         [OnOpenAsset]
         public static bool OnOpenAsset(int instanceId, int line)
         {
-            if (Selection.activeObject is BehaviourTreeController) {
+            if (Selection.activeObject is BehaviourTreeController)
+            {
                 OpenWindow();
                 return true;
             }
@@ -42,16 +44,11 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             _TreeView = root.Q<BehaviourTreeView>();
             _TreeView.Init(this);
 
-            OnSelectionChange();
+            PopulateViewFromSelection();
 
             if (!_TreeView.IsPopulated)
             {
-                if (_TreeController == null)
-                {
-                    LoadWindowState();
-                }
-
-                PopulateTreeView(_TreeController);
+                PopulateViewFromBackup();
             }
         }
 
@@ -65,6 +62,16 @@ namespace MoshitinEncoded.Editor.BehaviourTree
         {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChange;
             SaveWindowState();
+        }
+
+        private void PopulateViewFromBackup()
+        {
+            if (_TreeController == null)
+            {
+                LoadWindowState();
+            }
+
+            PopulateTreeView(_TreeController);
         }
 
         private void SaveWindowState()
@@ -93,7 +100,7 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             switch (change)
             {
                 case PlayModeStateChange.EnteredEditMode:
-                    PopulateViewFromSelection();
+                    PopulateTreeView(_TreeController);
                     break;
                 case PlayModeStateChange.EnteredPlayMode:
                     PopulateViewFromSelection();
@@ -108,27 +115,34 @@ namespace MoshitinEncoded.Editor.BehaviourTree
 
         private void PopulateViewFromSelection()
         {
-            var selectedGraphAsset = GetGraphFromSelection();
-            PopulateTreeView(selectedGraphAsset);
+            var selectedTree = GetTreeFromSelection();
+            PopulateTreeView(selectedTree);
         }
 
-        private static BehaviourTreeController GetGraphFromSelection()
+        private BehaviourTreeController GetTreeFromSelection()
         {
-            var selectedGraphAsset = Selection.activeObject as BehaviourTreeController;
-            if (!selectedGraphAsset)
+            var selectedTree = Selection.activeObject as BehaviourTreeController;
+            if (!selectedTree)
             {
-                selectedGraphAsset = GetGraphFromGameObject();
+                selectedTree = GetTreeFromGameObject();
             }
 
-            return selectedGraphAsset;
+            return selectedTree;
         }
 
-        private static BehaviourTreeController GetGraphFromGameObject()
+        private BehaviourTreeController GetTreeFromGameObject()
         {
-            if (Selection.activeGameObject != null && 
+            if (Selection.activeGameObject != null &&
                 Selection.activeGameObject.TryGetComponent(out BehaviourTreeMachine behaviourMachine))
             {
-                return behaviourMachine.BehaviourTree;
+                var behaviourTree = behaviourMachine.BehaviourTree;
+                if (Application.isPlaying)
+                {
+                    _TreeController = behaviourMachine.BehaviourTree;
+                    behaviourTree = behaviourMachine.BehaviourTreeInstance;
+                }
+                
+                return behaviourTree;
             }
 
             return null;
@@ -143,14 +157,14 @@ namespace MoshitinEncoded.Editor.BehaviourTree
 
             if (Application.isPlaying)
             {
-                if (_TreeController != null)
+                if (_TreeControllerActive != null)
                 {
-                    _TreeController.Updated -= OnTreeUpdate;
+                    _TreeControllerActive.Updated -= OnTreeUpdate;
                 }
 
                 treeController.Updated += OnTreeUpdate;
                 _TreeView.PopulateView(treeController);
-                _TreeController = treeController;
+                _TreeControllerActive = treeController;
             }
             else
             {
@@ -158,6 +172,7 @@ namespace MoshitinEncoded.Editor.BehaviourTree
                 {
                     _TreeView.PopulateView(treeController);
                     _TreeController = treeController;
+                    _TreeControllerActive = treeController;
                 }
             }
         }
