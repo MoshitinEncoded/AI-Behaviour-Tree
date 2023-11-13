@@ -1,5 +1,5 @@
 ﻿namespace MoshitinEncoded.BehaviourTree
 {
-    [AddParameterMenu("Int")]
-    public class BlackboardParameter_Int : BlackboardParameter<int> { }
+    [AddParameterMenu("Common/Int")]
+    internal class BlackboardParameter_Int : BlackboardParameter<int> { }
 }

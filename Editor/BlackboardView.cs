@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 namespace MoshitinEncoded.Editor.BehaviourTree
 {
-    public class BlackboardView : Blackboard
+    internal class BlackboardView : Blackboard
     {
         private BehaviourTreeController _tree;
         private SerializedObject _serializedTree;

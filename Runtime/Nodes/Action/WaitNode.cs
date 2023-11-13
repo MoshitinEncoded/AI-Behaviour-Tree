@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MoshitinEncoded.BehaviourTree
 {
-    [NodeMenu("Action/Wait")]
+    [CreateNodeMenu("Action/Wait")]
     public class WaitNode : ActionNode
     {
         public float duration = 1f;
@@ -13,14 +13,14 @@ namespace MoshitinEncoded.BehaviourTree
             startTime = Time.time;
         }
 
-        protected override State OnUpdate()
+        protected override NodeState OnUpdate()
         {
             if (TimeOver())
             {
-                return State.Success;
+                return NodeState.Success;
             }
 
-            return State.Running;
+            return NodeState.Running;
         }
 
         protected override void OnStop()

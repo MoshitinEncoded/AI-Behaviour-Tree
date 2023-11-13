@@ -1,5 +1,4 @@
 ﻿#if UNITY_EDITOR
-using System;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -10,23 +9,17 @@ using UnityEngine;
 
 namespace MoshitinEncoded.BehaviourTree
 {
-    public class BlackboardParameter : ScriptableObject
+    public abstract class BlackboardParameter : ScriptableObject
     {
         [SerializeField] private string _PropertyName;
-        public virtual object Value {get; set;}
         public string PropertyName
         {
-            get
-            {
-                return _PropertyName;
-            }
-            set
-            {
-                _PropertyName = value;
-            }
+            get => _PropertyName;
+            set => _PropertyName = value;
         }
 
-        public virtual bool IsOfType(Type type) { return true; }
+        public virtual object GetValue() { return null; }
+        public virtual bool SetValue(object value) { return true; }
 #if UNITY_EDITOR
         public bool IsExpanded;
         public virtual void DrawProperty(BlackboardSection propertiesSection) { }
@@ -39,26 +32,28 @@ namespace MoshitinEncoded.BehaviourTree
     public class BlackboardParameter<T> : BlackboardParameter
     {
         [SerializeField] private T _Value;
-        public override object Value
+
+        public override object GetValue()
         {
-            get => _Value;
-            set
-            {
-                if (value is T newValue)
-                {
-                    _Value = newValue;
-                }
-                else if (value == null)
-                {
-                    _Value = default;
-                }
-            }
+            return _Value;
         }
 
-        public override bool IsOfType(Type type)
+        public override bool SetValue(object value)
         {
-            var myType = typeof(T);
-            return myType == type || myType.IsSubclassOf(type);
+            if (value is T newValue)
+            {
+                _Value = newValue;
+                return true;
+            }
+            else if (value == null)
+            {
+                _Value = default;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 #if UNITY_EDITOR
         public override void DrawProperty(BlackboardSection propertiesSection)

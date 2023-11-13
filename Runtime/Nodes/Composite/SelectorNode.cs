@@ -1,6 +1,6 @@
 namespace MoshitinEncoded.BehaviourTree
 {
-    [NodeMenu("Composite/Selector")]
+    [CreateNodeMenu("Composite/Selector")]
     public class SelectorNode : CompositeNode
     {
         protected override void OnStart()
@@ -13,18 +13,18 @@ namespace MoshitinEncoded.BehaviourTree
             
         }
 
-        protected override State OnUpdate()
+        protected override NodeState OnUpdate()
         {
-            foreach (var child in children)
+            foreach (var child in Children)
             {
                 var childState = child.Update();
-                if (childState != State.Failure)
+                if (childState != NodeState.Failure)
                 {
                     return childState;
                 }
             }
 
-            return State.Failure;
+            return NodeState.Failure;
         }
     }
 }

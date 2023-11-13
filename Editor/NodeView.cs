@@ -5,111 +5,119 @@ using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections.Generic;
 
 namespace MoshitinEncoded.Editor.BehaviourTree
 {
-    public class NodeView : UnityEditor.Experimental.GraphView.Node
+    internal class NodeView : UnityEditor.Experimental.GraphView.Node
     {
-        [SerializeField] private Node _node;
-        public Node Node => _node;
+        protected bool _IsStateVisible = false;
+        [SerializeField] private Node _Node;
+        private readonly SerializedObject _SerializedNode;
+        private static readonly float _HideDelaySeconds = 0.2f;
+        private NodeState _PrevState = NodeState.Running;
+
+        public Node Node => _Node;
+
         public Port Input { get; private set; }
+
         public Port Output { get; private set; }
 
-        private readonly SerializedObject _serializedNode;
+        protected BehaviourTreeView TreeView { get; private set; }
 
-        public NodeView(Node node) : base("Packages/com.moshitin-encoded.behaviourgraph/Editor/NodeView.uxml")
+        protected SerializedObject SerializedNode => _SerializedNode;
+
+        public NodeView(Node node, BehaviourTreeView treeView) : base("Packages/com.moshitin-encoded.behaviourgraph/Editor/NodeView.uxml")
         {
-            _node = node;
+            _Node = node;
+            _SerializedNode = new SerializedObject(node);
+            TreeView = treeView;
 
-            title = node.name;
-            viewDataKey = node.guid;
-            if (node is RootNode)
-            {
-                // Removes the capability of being deleted
-                capabilities &= ~Capabilities.Deletable;
-            }
-            
-            _serializedNode = new SerializedObject(node);
+            viewDataKey = _SerializedNode.FindProperty("_Guid").stringValue;
 
             if (node is not RootNode)
             {
-                var titleLabel = titleContainer.Q<Label>();
-                titleLabel.bindingPath = "Title";
-                titleLabel.Bind(_serializedNode);
+                BindTitleLabel();
             }
-            
-            var newPosition = new Rect
+
+            base.SetPosition(new Rect
             {
-                position = node.position
-            };
-            base.SetPosition(newPosition);
-            //style.left = node.position.x;
-            //style.top = node.position.y;
+                position = _SerializedNode.FindProperty("_Position").vector2Value
+            });
 
             CreateInputPorts();
             CreateOutputPorts();
             AddStyleClass();
         }
 
-        public void AddChild(Node child)
+        public virtual void AddChild(Node child) { }
+
+        public virtual void RemoveChild(Node child) { }
+
+        public virtual void OnMoved() { }
+
+        public override void SetPosition(Rect newPos)
         {
-            _serializedNode.Update();
+            base.SetPosition(newPos);
 
-            switch (Node)
-            {
-                case RootNode:
-                case DecoratorNode:
-                {
-                    var childProperty = _serializedNode.FindProperty("child");
-                    childProperty.objectReferenceValue = child;
-                    break;
-                }
-                case CompositeNode:
-                {
-                    var childrenProperty = _serializedNode.FindProperty("children");
-                    childrenProperty.AddToObjectArray(child);
-                    break;
-                }
-            }
+            _SerializedNode.Update();
 
-            _serializedNode.ApplyModifiedProperties();
+            var positionProperty = _SerializedNode.FindProperty("_Position");
+            positionProperty.vector2Value = newPos.position;
 
-            SortChildren();
+            _SerializedNode.ApplyModifiedProperties();
         }
 
-        public void RemoveChild(Node child)
+        public override void OnSelected()
         {
-            _serializedNode.Update();
+            base.OnSelected();
+            Selection.activeObject = Node;
+        }
 
-            switch (Node)
+        internal void UpdateState()
+        {
+            if (IsHideDelayCompleted())
             {
-                case RootNode:
-                case DecoratorNode:
-                {
-                    var childProperty = _serializedNode.FindProperty("child");
-                    childProperty.objectReferenceValue = null;
-                    break;
-                }
-                case CompositeNode:
-                {
-                    var childrenProperty = _serializedNode.FindProperty("children");
-                    childrenProperty.RemoveFromObjectArray(child);
-                    break;
-                }
+                HideStates();
+                return;
             }
 
-            _serializedNode.ApplyModifiedProperties();
+            if (!WasCompletedThisFrame())
+            {
+                ShowState(Node.State);
+            }
+
+            _PrevState = Node.State;
+        }
+
+        protected virtual void AddStyleClass() { }
+
+        protected virtual void OnUpdateState() { }
+
+        protected List<Node> GetChildren()
+        {
+            if (Node is IParentNode parentNode)
+            {
+                return parentNode.GetChildren();
+            }
+            else
+            {
+                return new List<Node>();
+            }
+        }
+
+        private void BindTitleLabel()
+        {
+            var titleLabel = titleContainer.Q<Label>();
+            titleLabel.bindingPath = "_Title";
+            titleLabel.Bind(_SerializedNode);
         }
 
         private void CreateInputPorts()
         {
-            switch (Node)
+            if (Node is not RootNode)
             {
-                case ActionNode:
-                case CompositeNode:
-                case DecoratorNode:
-                    Input = InstantiatePort(Orientation.Vertical, Direction.Input, Port.Capacity.Single, typeof(bool));
-                    break;
+                Input = InstantiatePort(Orientation.Vertical, Direction.Input, Port.Capacity.Single, typeof(bool));
             }
 
             if (Input == null)
@@ -142,73 +150,32 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             }
         }
 
-        private void AddStyleClass()
+        private void ShowState(NodeState nodeState)
         {
-            switch (Node)
+            HideStates();
+            switch (nodeState)
             {
-                case ActionNode:
-                    AddToClassList("action");
+                case NodeState.Running:
+                    AddToClassList("running");
                     break;
-                case CompositeNode:
-                    AddToClassList("composite");
-                    break;
-                case DecoratorNode:
-                    AddToClassList("decorator");
-                    break;
-                case RootNode:
-                    AddToClassList("root");
-                    break;
-            }
-        }
-
-        public override void SetPosition(Rect newPos)
-        {
-            base.SetPosition(newPos);
-
-            _serializedNode.Update();
-
-            var posProperty = _serializedNode.FindProperty("position");
-            posProperty.vector2Value = newPos.position;
-
-            _serializedNode.ApplyModifiedProperties();
-        }
-
-        public override void OnSelected()
-        {
-            base.OnSelected();
-            Selection.activeObject = Node;
-        }
-
-        public void SortChildren()
-        {
-            if (Node is CompositeNode composite)
-            {
-                composite.children.Sort(SortByHorizontalPosition);
-            }
-        }
-
-        private static int SortByHorizontalPosition(Node left, Node right) =>
-            left.position.x < right.position.x ? -1 : 1;
-
-        public void UpdateState()
-        {
-            RemoveFromClassList("running");
-            RemoveFromClassList("failure");
-            RemoveFromClassList("success");
-
-            switch (Node.state)
-            {
-                case Node.State.Running:
-                    if (Node.Started)
-                        AddToClassList("running");
-                    break;
-                case Node.State.Failure:
+                case NodeState.Failure:
                     AddToClassList("failure");
                     break;
-                case Node.State.Success:
+                case NodeState.Success:
                     AddToClassList("success");
                     break;
             }
         }
+
+        private void HideStates()
+        {
+            RemoveFromClassList("running");
+            RemoveFromClassList("failure");
+            RemoveFromClassList("success");
+        }
+
+        private bool WasCompletedThisFrame() => Node.State != _PrevState && _PrevState == NodeState.Running;
+
+        private bool IsHideDelayCompleted() => Time.time - Node.LastUpdateTime >= _HideDelaySeconds;
     }
 }

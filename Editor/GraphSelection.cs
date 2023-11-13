@@ -4,9 +4,9 @@ using MoshitinEncoded.BehaviourTree;
 
 namespace MoshitinEncoded.Editor.BehaviourTree
 {
-    public class GraphSelection
+    internal class DeserializedSelection
     {
         public Rect SelectionRect;
-        public IEnumerable<Node> Nodes;
+        public Dictionary<Node, List<Node>> NodeChildsDict;
     }
 }

@@ -9,7 +9,7 @@ using MoshitinEncoded.BehaviourTree;
 
 namespace MoshitinEncoded.Editor.BehaviourTree
 {
-    public class NodeSearchWindow : ScriptableObject, ISearchWindowProvider
+    internal class NodeSearchWindow : ScriptableObject, ISearchWindowProvider
     {
         public struct NodeInfo
         {
@@ -18,11 +18,11 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             public string[] MenuPathSpliced;
         }
 
-        private BehaviourGraphView _behaviourTreeView;
+        private BehaviourTreeView _behaviourTreeView;
         private EditorWindow _window;
         private Texture2D _icon;
 
-        public void Init(EditorWindow editorWindow, BehaviourGraphView behaviourTreeView)
+        public void Init(EditorWindow editorWindow, BehaviourTreeView behaviourTreeView)
         {
             _behaviourTreeView = behaviourTreeView;
             _window = editorWindow;
@@ -108,7 +108,7 @@ namespace MoshitinEncoded.Editor.BehaviourTree
 
             foreach (var nodeType in nodeTypesCollection)
             {
-                var nodeMenuPath = nodeType.GetCustomAttribute<NodeMenuAttribute>()?.Path;
+                var nodeMenuPath = nodeType.GetCustomAttribute<CreateNodeMenuAttribute>()?.Path;
                 if (nodeMenuPath == null)
                 {
                     continue;

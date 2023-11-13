@@ -1,6 +1,6 @@
 namespace MoshitinEncoded.BehaviourTree
 {
-    [NodeMenu("Decorator/Repeater")]
+    [CreateNodeMenu("Decorator/Repeater")]
     public class RepeatNode : DecoratorNode
     {
         protected override void OnStart()
@@ -8,10 +8,10 @@ namespace MoshitinEncoded.BehaviourTree
             
         }
 
-        protected override State OnUpdate()
+        protected override NodeState OnUpdate()
         {
-            child.Update();
-            return State.Running;
+            Child.Update();
+            return NodeState.Running;
         }
 
         protected override void OnStop()

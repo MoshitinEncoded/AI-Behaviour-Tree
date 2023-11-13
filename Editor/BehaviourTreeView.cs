@@ -10,20 +10,21 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public partial class BehaviourGraphView : GraphView
+public partial class BehaviourTreeView : GraphView
 {
-    public new class UxmlFactory : UxmlFactory<BehaviourGraphView, UxmlTraits> { }
+    public new class UxmlFactory : UxmlFactory<BehaviourTreeView, UxmlTraits> { }
 
-    private BehaviourTreeController _GraphAsset;
+    private BehaviourTreeController _BehaviourTreeController;
     private SerializedObject _SerializedGraph;
     private NodeSearchWindow _SearchWindow;
     private EditorWindow _Window;
     private BlackboardView _BlackboardView;
     private Vector2 _MousePosition;
+    private RootNodeView _RootNodeView;
 
-    public bool IsPopulated => _GraphAsset != null;
+    public bool IsPopulated => _BehaviourTreeController != null;
 
-    public BehaviourGraphView()
+    public BehaviourTreeView()
     {
         Insert(0, new GridBackground());
 
@@ -34,7 +35,7 @@ public partial class BehaviourGraphView : GraphView
 
         var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>
         (
-            "Packages/com.moshitin-encoded.behaviourgraph/Editor/BehaviourGraphEditor.uss"
+            "Packages/com.moshitin-encoded.behaviourgraph/Editor/BehaviourTreeEditor.uss"
         );
 
         styleSheets.Add(styleSheet);
@@ -63,9 +64,9 @@ public partial class BehaviourGraphView : GraphView
             return;
         }
 
-        if (_GraphAsset != tree)
+        if (_BehaviourTreeController != tree)
         {
-            _GraphAsset = tree;
+            _BehaviourTreeController = tree;
             _SerializedGraph = new SerializedObject(tree);
         }
 
@@ -73,9 +74,9 @@ public partial class BehaviourGraphView : GraphView
         DeleteElements(graphElements);
         graphViewChanged += OnGraphViewChange;
 
-        _BlackboardView.PopulateView(_GraphAsset, _SerializedGraph);
+        _BlackboardView.PopulateView(_BehaviourTreeController, _SerializedGraph);
 
-        if (_GraphAsset.RootNode == null)
+        if (_BehaviourTreeController.RootNode == null)
         {
             _SerializedGraph.Update();
 
@@ -86,13 +87,13 @@ public partial class BehaviourGraphView : GraphView
         }
 
         // Creates node views
-        foreach (var node in _GraphAsset.Nodes)
+        foreach (var node in _BehaviourTreeController.Nodes)
         {
             CreateNodeView(node);
         }
 
         // Creates node edges
-        foreach (var node in _GraphAsset.Nodes)
+        foreach (var node in _BehaviourTreeController.Nodes)
         {
             if (node is IParentNode parentNode)
             {
@@ -113,10 +114,10 @@ public partial class BehaviourGraphView : GraphView
 
     public void UpdateNodeStates()
     {
+        //_RootNodeView?.UpdateState();
         nodes.ForEach(node =>
         {
-            var nodeView = node as NodeView;
-            nodeView.UpdateState();
+            (node as NodeView).UpdateState();
         });
     }
 
@@ -137,13 +138,18 @@ public partial class BehaviourGraphView : GraphView
             return null;
         }
 
-        node.Title = nodeTitle;
+        AddNodeToProject(node, registerUndo);
+
+        var serializedNode = new SerializedObject(node);
+        serializedNode.FindProperty("_Guid").stringValue = GUID.Generate().ToString();
+        serializedNode.FindProperty("_Position").vector2Value = position;
+        serializedNode.FindProperty("_Title").stringValue = nodeTitle;
+        serializedNode.ApplyModifiedPropertiesWithoutUndo();
+
         node.name = nodeType.Name;
-        node.guid = GUID.Generate().ToString();
-        node.position = position;
         //node.hideFlags = HideFlags.HideInHierarchy;
 
-        AddNode(node, registerUndo);
+        AddNodeToAsset(node, registerUndo);
 
         return node;
     }
@@ -153,7 +159,11 @@ public partial class BehaviourGraphView : GraphView
         _MousePosition = contentViewContainer.WorldToLocal(evt.mousePosition);
     }
 
-    private NodeView GetNodeView(Node node) => GetElementByGuid(node.guid) as NodeView;
+    internal NodeView GetNodeView(Node node)
+    {
+        string nodeGuid = new SerializedObject(node).FindProperty("_Guid").stringValue;
+        return GetElementByGuid(nodeGuid) as NodeView;
+    }
 
     /// <summary>
     /// Called on Copy/Cut/Duplicate operations.
@@ -212,54 +222,89 @@ public partial class BehaviourGraphView : GraphView
 
     private void OnPasteElements(string operationName, string data)
     {
-        var graphSelection = GraphSerializer.UnserializeSelection(data);
-        var topNodes = GetTopParents(graphSelection.Nodes);
+        var selection = GraphSerializer.UnserializeSelection(data);
+        var topParents = GetTopParents(selection.NodeChildsDict);
 
         ClearSelection();
 
-        topNodes.ForEach(topNode =>PasteNodeHierarchy(
-            operationName: operationName,
-            selectionRect: graphSelection.SelectionRect,
-            node: topNode));
+        foreach (var parent in topParents)
+        {
+            PasteNodeHierarchy(
+                operationName: operationName,
+                selectionRect: selection.SelectionRect,
+                nodeChildsDict: selection.NodeChildsDict,
+                node: parent
+            );
+        }
     }
 
-    private NodeView PasteNodeHierarchy(string operationName, Rect selectionRect, Node node)
+    private NodeView PasteNodeHierarchy(string operationName, Rect selectionRect, Dictionary<Node, List<Node>> nodeChildsDict, Node node)
     {
+        var isParentNode = node is IParentNode;
+        var childNodes = nodeChildsDict[node];
+
+        AddNodeToProject(node, registerUndo: true);
+
+        // Set Guid and Position
+        var serializedNode = new SerializedObject(node);
+        var positionProperty = serializedNode.FindProperty("_Position");
+
         if (operationName == "Duplicate")
         {
-            node.position += new Vector2(10, 10);
+            positionProperty.vector2Value += new Vector2(10, 10);
         }
         else
         {
-            node.position = _MousePosition + node.position - selectionRect.center;
+            positionProperty.vector2Value = _MousePosition + positionProperty.vector2Value - selectionRect.center;
         }
 
-        AddNode(node, registerUndo: true);
+        serializedNode.FindProperty("_Guid").stringValue = GUID.Generate().ToString();
+        serializedNode.ApplyModifiedProperties();
 
+        AddNodeToAsset(node, registerUndo: true);
+
+        // Paste and get child nodes
         var nodeView = GetNodeView(node);
-        AddToSelection(nodeView);
-
-        if (node is IParentNode parentNode)
+        var childNodeViews = new List<NodeView>();
+        foreach (var childNode in childNodes)
         {
-            parentNode.GetChildren().ForEach(childNode => 
+            childNodeViews.Add(PasteNodeHierarchy(operationName, selectionRect, nodeChildsDict, childNode));
+        }
+
+        Undo.RecordObject(node, "Create Node (Behaviour Tree)");
+        node.name = node.GetType().Name;
+
+        if (isParentNode)
+        {
+            var parentNode = node as IParentNode;
+            parentNode.ClearChildren();
+            foreach (var childNode in childNodes)
             {
-                var childNodeView = PasteNodeHierarchy(operationName, selectionRect, childNode);
+                parentNode.AddChild(childNode);
+            }
+
+            foreach (var childNodeView in childNodeViews)
+            {
                 var edge = nodeView.Output.ConnectTo(childNodeView.Input);
                 AddElement(edge);
-            });
+                AddToSelection(edge);
+            }
         }
+
+        AddToSelection(nodeView);
+        Debug.Log("Node: " + node.name + ". Childs: [" + childNodes.Count + "]");
 
         return nodeView;
     }
 
-    private List<Node> GetTopParents(IEnumerable<Node> nodes)
+    private IEnumerable<Node> GetTopParents(Dictionary<Node, List<Node>> nodeChildsDict)
     {
-        var topParents = new List<Node>(nodes);
-        foreach (var node in nodes)
+        var topParents = nodeChildsDict.Keys.ToList();
+        foreach (var nodeChildsPair in nodeChildsDict)
         {
-            if (node is IParentNode parentNode)
+            foreach (var childNode in nodeChildsPair.Value)
             {
-                parentNode.GetChildren().ForEach(child => topParents.Remove(child));
+                topParents.Remove(childNode);
             }
         }
 
@@ -268,7 +313,7 @@ public partial class BehaviourGraphView : GraphView
 
     private void OnUndoRedo()
     {
-        PopulateView(_GraphAsset);
+        PopulateView(_BehaviourTreeController);
     }
 
     private void AddSearchWindow()
@@ -285,11 +330,9 @@ public partial class BehaviourGraphView : GraphView
         Add(_BlackboardView);
     }
 
-    
-
     private void LoadViewTransform()
     {
-        if (_GraphAsset == null)
+        if (_BehaviourTreeController == null)
         {
             return;
         }
@@ -300,7 +343,7 @@ public partial class BehaviourGraphView : GraphView
 
     private void OnViewTransformChanged(GraphView graphView)
     {
-        if (_GraphAsset == null)
+        if (_BehaviourTreeController == null)
         {
             return;
         }
@@ -343,27 +386,28 @@ public partial class BehaviourGraphView : GraphView
             nodes.ForEach(node =>
             {
                 var nodeView = node as NodeView;
-                nodeView.SortChildren();
+                nodeView.OnMoved();
             });
         }
 
         return graphViewChange;
     }
 
-    private void AddNode(Node node, bool registerUndo)
+    private void AddNodeToProject(Node node, bool registerUndo)
     {
-        // Adds the node to the project
         if (!Application.isPlaying)
         {
-            AssetDatabase.AddObjectToAsset(node, _GraphAsset);
+            AssetDatabase.AddObjectToAsset(node, _BehaviourTreeController);
         }
 
         if (registerUndo)
         {
             Undo.RegisterCreatedObjectUndo(node, "Create Node (Behaviour Tree)");
         }
+    }
 
-        // Adds the node to the list
+    private void AddNodeToAsset(Node node, bool registerUndo)
+    {
         _SerializedGraph.Update();
         
         var nodesProperty = _SerializedGraph.FindProperty("_Nodes");
@@ -402,7 +446,30 @@ public partial class BehaviourGraphView : GraphView
 
     private void CreateNodeView(Node node)
     {
-        var nodeView = new NodeView(node);
+        NodeView nodeView;
+        switch (node)
+        {
+            case RootNode:
+                _RootNodeView = new RootNodeView(node, this);
+                nodeView = _RootNodeView;
+                break;
+            case DecoratorNode:
+                nodeView = new DecoratorNodeView(node, this);
+                break;
+            case CompositeNode:
+                nodeView = new CompositeNodeView(node, this);
+                break;
+            case ConditionNode:
+                nodeView = new ConditionNodeView(node, this);
+                break;
+            case ActionNode:
+                nodeView = new ActionNodeView(node, this);
+                break;
+            default:
+                nodeView = new NodeView(node, this);
+                break;
+        }
+
         AddElement(nodeView);
     }
 }

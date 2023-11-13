@@ -5,7 +5,13 @@ namespace MoshitinEncoded.BehaviourTree
 {
     public abstract class CompositeNode : Node, IParentNode
     {
-        [HideInInspector] public List<Node> children = new();
+        [SerializeField, HideInInspector] private List<Node> _Children = new();
+
+        public List<Node> Children
+        {
+            get => _Children;
+            private set => _Children = value;
+        }
 
         public void AddChild(Node child)
         {
@@ -14,7 +20,12 @@ namespace MoshitinEncoded.BehaviourTree
                 return;
             }
 
-            children.Add(child);
+            Children.Add(child);
+        }
+
+        public void ClearChildren()
+        {
+            Children.Clear();
         }
 
         public override Node Clone(bool withChildren)
@@ -22,16 +33,16 @@ namespace MoshitinEncoded.BehaviourTree
             CompositeNode node = Instantiate(this);
             if (withChildren)
             {
-                node.children = children.ConvertAll(child => child.Clone());
+                node.Children = Children.ConvertAll(child => child.Clone());
             }
             else
             {
-                node.children.Clear();
+                node.Children.Clear();
             }
 
             return node;
         }
 
-        public List<Node> GetChildren() => children;
+        public List<Node> GetChildren() => Children;
     }
 }

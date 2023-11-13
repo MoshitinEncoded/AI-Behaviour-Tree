@@ -4,47 +4,55 @@ namespace MoshitinEncoded.BehaviourTree
 {
     public abstract class Node : ScriptableObject
     {
-        public enum State
-        {
-            Running,
-            Failure,
-            Success
-        }
 
-        public string Title = "Node";
-        [HideInInspector] public State state = State.Running;
-        [HideInInspector] public bool Started { get; private set; } = false;
 #if UNITY_EDITOR
-        [HideInInspector] public string guid;
-        [HideInInspector] public Vector2 position;
+        [SerializeField] private string _Title;
+        [SerializeField, HideInInspector] private string _Guid;
+        [SerializeField, HideInInspector] private Vector2 _Position;
 #endif
+
+        [HideInInspector] public NodeState State { get; private set; } = NodeState.Running;
+        [HideInInspector] public bool Started { get; private set; } = false;
+        [HideInInspector] public float StartTime { get; private set; } = float.MinValue;
+        [HideInInspector] public float LastUpdateTime { get; private set; } = float.MinValue;
         protected BehaviourTreeMachine BehaviourMachine { get; private set; }
 
-        public State Update()
+        public NodeState Update()
         {
             if (!Started)
             {
                 OnStart();
                 Started = true;
+                StartTime = Time.time;
             }
 
-            state = OnUpdate();
+            State = OnUpdate();
 
-            if (state == State.Failure || state == State.Success)
+            if (State == NodeState.Failure || State == NodeState.Success)
             {
                 OnStop();
                 Started = false;
             }
 
-            return state;
+            LastUpdateTime = Time.time;
+            return State;
         }
 
-        internal void Bind(BehaviourTreeMachine behaviourMachine) =>
-            BehaviourMachine = behaviourMachine;
-
         public virtual Node Clone(bool withChildren = true) => Instantiate(this);
+
+        internal void Bind(BehaviourTreeMachine behaviourMachine) => BehaviourMachine = behaviourMachine;
+
         protected abstract void OnStart();
-        protected abstract State OnUpdate();
+
+        protected abstract NodeState OnUpdate();
+
         protected abstract void OnStop();
     }
+
+    public enum NodeState
+        {
+            Running,
+            Failure,
+            Success
+        }
 }

@@ -1,8 +1,13 @@
+using UnityEngine;
+
 namespace MoshitinEncoded.BehaviourTree
 {
-    [NodeMenu("Composite/Sequencer")]
+    [CreateNodeMenu("Composite/Sequencer")]
     public class SequencerNode : CompositeNode
     {
+        [SerializeField, Tooltip("Whether to update all nodes in the same frame.")]
+        private bool _UpdateInTheSameFrame = false;
+
         private int current;
         protected override void OnStart()
         {
@@ -14,21 +19,24 @@ namespace MoshitinEncoded.BehaviourTree
             
         }
 
-        protected override State OnUpdate()
+        protected override NodeState OnUpdate()
         {
-            var child = children[current];
-            switch (child.Update())
+            do
             {
-                case State.Running:
-                    return State.Running;
-                case State.Failure:
-                    return State.Failure;
-                case State.Success:
-                    current++;
-                    break;
-            }
+                var child = Children[current];
+                switch (child.Update())
+                {
+                    case NodeState.Running:
+                        return NodeState.Running;
+                    case NodeState.Failure:
+                        return NodeState.Failure;
+                    case NodeState.Success:
+                        current++;
+                        break;
+                }
+            } while (_UpdateInTheSameFrame && current < Children.Count);
 
-            return current == children.Count ? State.Success : State.Running;
+            return current == Children.Count ? NodeState.Success : NodeState.Running;
         }
     }
 }

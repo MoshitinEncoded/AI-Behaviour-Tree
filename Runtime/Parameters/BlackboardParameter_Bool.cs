@@ -1,5 +1,5 @@
 namespace MoshitinEncoded.BehaviourTree
 {
-    [AddParameterMenu("Bool")]
-    public class BlackboardParameter_Bool : BlackboardParameter<bool> { }
+    [AddParameterMenu("Common/Bool")]
+    internal class BlackboardParameter_Bool : BlackboardParameter<bool> { }
 }

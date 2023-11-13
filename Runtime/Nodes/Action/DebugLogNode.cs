@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MoshitinEncoded.BehaviourTree
 {
-    [NodeMenu("Action/Debug Log")]
+    [CreateNodeMenu("Action/Debug Log")]
     public class DebugLogNode : ActionNode
     {
         public string message;
@@ -12,10 +12,10 @@ namespace MoshitinEncoded.BehaviourTree
             Debug.Log($"OnStart{message}");
         }
 
-        protected override State OnUpdate()
+        protected override NodeState OnUpdate()
         {
             Debug.Log($"OnUpdate{message}");
-            return State.Success;
+            return NodeState.Success;
         }
 
         protected override void OnStop()

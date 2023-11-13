@@ -1,8 +1,8 @@
 namespace MoshitinEncoded.BehaviourTree {
-    public class NodeMenuAttribute : System.Attribute
+    public class CreateNodeMenuAttribute : System.Attribute
     {
         public string Path;
-        public NodeMenuAttribute(string path)
+        public CreateNodeMenuAttribute(string path)
         {
             Path = path;
         }

@@ -1,5 +1,5 @@
 namespace MoshitinEncoded.BehaviourTree
 {
-    [AddParameterMenu("Float")]
-    public class BlackboardParameter_Float : BlackboardParameter<float> { }
+    [AddParameterMenu("Common/Float")]
+    internal class BlackboardParameter_Float : BlackboardParameter<float> { }
 }

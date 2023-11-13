@@ -5,7 +5,13 @@ namespace MoshitinEncoded.BehaviourTree
 {
     public abstract class DecoratorNode : Node, IParentNode
     {
-        [HideInInspector] public Node child;
+        [SerializeField, HideInInspector] private Node _Child;
+
+        public Node Child
+        {
+            get => _Child;
+            protected set => _Child = value;
+        }
 
         public void AddChild(Node child)
         {
@@ -14,19 +20,24 @@ namespace MoshitinEncoded.BehaviourTree
                 return;
             }
 
-            this.child = child;
+            _Child = child;
+        }
+
+        public void ClearChildren()
+        {
+            _Child = null;
         }
 
         public override Node Clone(bool withChild)
         {
             DecoratorNode node = Instantiate(this);
-            if (withChild && child != null)
+            if (withChild && Child != null)
             {
-                node.child = child.Clone();
+                node._Child = Child.Clone();
             }
             else
             {
-                node.child = null;
+                node._Child = null;
             }
 
             return node;
@@ -34,9 +45,9 @@ namespace MoshitinEncoded.BehaviourTree
 
         public List<Node> GetChildren()
         {
-            if (child != null)
+            if (Child != null)
             {
-                return new List<Node>() { child };
+                return new List<Node>() { Child };
             }
 
             return new List<Node>();

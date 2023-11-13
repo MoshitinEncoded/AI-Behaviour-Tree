@@ -6,5 +6,6 @@ namespace MoshitinEncoded.BehaviourTree
     {
         void AddChild(Node child);
         List<Node> GetChildren();
+        void ClearChildren();
     }
 }

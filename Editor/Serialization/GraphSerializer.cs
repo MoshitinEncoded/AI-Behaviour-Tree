@@ -21,105 +21,84 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             var serializableSelection = new SerializableNodeSelection()
             {
                 SelectionRect = selectionRect,
-                SerializableNodes = GetSerializableNodes(elements)
+                SerializedNodes = GetSerializableNodes(elements)
             };
 
             return ToJson(serializableSelection);
         }
 
-        public static GraphSelection UnserializeSelection(string json)
+        public static DeserializedSelection UnserializeSelection(string json)
         {
             var serializableSelection = FromJson(json);
-            var serializableNodes = serializableSelection.SerializableNodes;
+            var serializedNodes = serializableSelection.SerializedNodes;
+            var nodeChildsDict = new Dictionary<Node, List<Node>>();
 
             // Add node childs
-            foreach (var serializableNode in serializableNodes)
+            foreach (var serializedNode in serializedNodes)
             {
-                if (serializableNode.Node is IParentNode parentNode)
+                nodeChildsDict.Add(serializedNode.Node, new List<Node>());
+                foreach (var childGuid in serializedNode.ChildGuids)
                 {
-                    foreach (var childGuid in serializableNode.ChildGuids)
-                    {
-                        var childNode = FindChild(serializableNodes, childGuid).Node;
-                        parentNode.AddChild(childNode);
-                    }
+                    var childNode = FindChild(serializedNodes, childGuid).Node;
+                    nodeChildsDict[serializedNode.Node].Add(childNode);
                 }
             }
 
-            var graphSelection = new GraphSelection()
+            var graphSelection = new DeserializedSelection()
             {
                 SelectionRect = serializableSelection.SelectionRect,
-                Nodes = ExtractNodes(serializableNodes)
+                NodeChildsDict = nodeChildsDict
             };
 
             return graphSelection;
         }
 
-        private static IEnumerable<Node> ExtractNodes(SerializableNode[] serializableNodes)
+        private static SerializableNode FindChild(SerializableNode[] serializableNodes, string childGuid)
         {
-            var nodes = new List<Node>();
-            foreach (var serializableNode in serializableNodes)
-            {
-                var node = serializableNode.Node;
-                node.name = node.GetType().Name;
-                
-                nodes.Add(node);
-            }
-
-            return nodes;
+            return serializableNodes.First(n => new SerializedObject(n.Node).FindProperty("_Guid").stringValue == childGuid);
         }
-
-        private static SerializableNode FindChild(SerializableNode[] serializableNodes, string childGuid) =>
-            serializableNodes.First(n => n.Node.guid == childGuid);
 
         private static SerializableNode[] GetSerializableNodes(IEnumerable<GraphElement> elements)
         {
+            var nodeChildsDict = new Dictionary<Node, List<string>>();
             var nodeViews = GetElementsTypeOf<NodeView>(elements);
             var edges = GetElementsTypeOf<Edge>(elements);
-            var serializableNodes = CreateSerializableNodes(nodeViews, edges);
+            foreach (var nodeView in nodeViews)
+            {
+                if (nodeView.Node is RootNode) continue;
+                nodeChildsDict.Add(nodeView.Node, new List<string>());
+            }
+
+            foreach (var edge in edges)
+            {
+                var inputNode = edge.input.node as NodeView;
+                var outputNode = edge.output.node as NodeView;
+                if (!nodeChildsDict.ContainsKey(inputNode.Node) || 
+                    !nodeChildsDict.ContainsKey(outputNode.Node))
+                        continue;
+                
+                var childGuid = new SerializedObject(inputNode.Node).FindProperty("_Guid").stringValue;
+                nodeChildsDict[outputNode.Node].Add(childGuid);
+            }
+
+            var serializableNodes = CreateSerializableNodes(nodeChildsDict);
 
             return serializableNodes.ToArray();
         }
 
-        private static List<SerializableNode> CreateSerializableNodes(List<NodeView> nodeViews, List<Edge> edges)
+        private static List<SerializableNode> CreateSerializableNodes(Dictionary<Node, List<string>> nodeChildsDict)
         {
-            var nodeCopies = CreateNodeCopies(nodeViews);
-
             var serializableNodes = new List<SerializableNode>();
 
-            // Creo las copias que voy a serializar con sus respectivos hijos como GUID
-            foreach (var nodeCopy in nodeCopies)
+            foreach (var nodeChildsPair in nodeChildsDict)
             {
-                var childGuids = new List<string>();
-                var connectedEdges = edges.Where(edge => edge.output.node == nodeCopy.Key);
-                foreach (var connectedEdge in connectedEdges)
-                {
-                    var childNodeView = (NodeView)connectedEdge.input.node;
-                    var childCopy = nodeCopies[childNodeView];
-                    childGuids.Add(childCopy.guid);
-                }
-
-                serializableNodes.Add(new SerializableNode(nodeCopy.Value, childGuids.ToArray()));
+                serializableNodes.Add(new SerializableNode(
+                    nodeChildsPair.Key, 
+                    nodeChildsPair.Value.ToArray()
+                ));
             }
 
             return serializableNodes;
-        }
-
-        private static Dictionary<NodeView, Node> CreateNodeCopies(List<NodeView> nodeViews)
-        {
-            var copies = new Dictionary<NodeView, Node>();
-            foreach (var originalNodeView in nodeViews)
-            {
-                var nodeCopy = originalNodeView.Node.Clone(withChildren: false);
-                nodeCopy.guid = GUID.Generate().ToString();
-                nodeCopy.name = nodeCopy.name.Remove(nodeCopy.name.IndexOf('('));
-
-                copies.Add(
-                    key: originalNodeView,
-                    value: nodeCopy
-                );
-            }
-
-            return copies;
         }
 
         private static List<TElement> GetElementsTypeOf<TElement>(IEnumerable<GraphElement> elements)

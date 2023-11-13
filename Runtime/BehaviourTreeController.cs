@@ -7,28 +7,27 @@ namespace MoshitinEncoded.BehaviourTree
     [CreateAssetMenu(fileName = "NewBehaviourTree", menuName = "MoshitinEncoded/Behaviour Tree")]
     public class BehaviourTreeController : ScriptableObject
     {
-        /// <summary>
-        /// Called <b>after</b> the update of this behaviour.
-        /// </summary>
-        public event System.Action Updated;
-        [SerializeField] private Node _RootNode;
-        [SerializeField] private Node.State _State = Node.State.Running;
-        [SerializeField] private List<Node> _Nodes = new();
-        [SerializeField] private BlackboardParameter[] _Parameters;
 
 #if UNITY_EDITOR
         [SerializeField, HideInInspector] private Vector2 _GraphPosition = Vector2.zero;
         [SerializeField, HideInInspector] private Vector2 _GraphScale = Vector2.one;
 #endif
 
+        /// <summary>
+        /// Called when this Behaviour Tree has been updated.
+        /// </summary>
+        public event System.Action Updated;
+
+        [SerializeField] private Node _RootNode;
+        [SerializeField] private NodeState _State = NodeState.Running;
+        [SerializeField] private List<Node> _Nodes = new();
+        [SerializeField] private BlackboardParameter[] _Parameters;
+
         private BehaviourTreeMachine _BehaviourTreeMachine;
 
-        public Node RootNode { get => _RootNode; private set => _RootNode = value; }
+        public Node RootNode => _RootNode;
 
-        /// <summary>
-        /// State of the <b>Behaviour Tree</b>.
-        /// </summary>
-        public Node.State State => _State;
+        public NodeState State => _State;
 
         public Node[] Nodes => _Nodes.ToArray();
 
@@ -50,10 +49,10 @@ namespace MoshitinEncoded.BehaviourTree
         /// <summary>
         /// Updates the Behaviour Tree.
         /// </summary>
-        /// <returns> The state of the Behaviour Tree. </returns>
-        public Node.State Update()
+        /// <returns> The new state of the Behaviour Tree. </returns>
+        public NodeState Update()
         {
-            if (RootNode.state == Node.State.Running)
+            if (RootNode.State == NodeState.Running)
             {
                 _State = RootNode.Update();
             }
@@ -71,7 +70,7 @@ namespace MoshitinEncoded.BehaviourTree
         {
             // Clone behaviour tree and nodes
             BehaviourTreeController clonedTree = Instantiate(this);
-            clonedTree.RootNode = RootNode.Clone();
+            clonedTree._RootNode = RootNode.Clone();
 
             // Clone nodes list
             clonedTree._Nodes = new List<Node>();
@@ -100,14 +99,20 @@ namespace MoshitinEncoded.BehaviourTree
         public T GetParameter<T>(string name)
         {
             var property = _Parameters.First(p => p.PropertyName == name);
-            if (property != null && property.Value is T value)
+            if (!property)
+            {
+                throw new UnityException($"The Behaviour Tree {this.name} does not have a property named \"{name}\" " +
+                    $"in \"{_BehaviourTreeMachine.gameObject.name}\".");
+            }
+
+            if (property.GetValue() is T value)
             {
                 return value;
             }
             else
             {
-                throw new UnityException($"GetProperty exception in \"{_BehaviourTreeMachine.gameObject.name}\" GameObject." +
-                    $"{this.name} behaviour tree does not have a {typeof(T).Name} property \"{name}\".");
+                throw new UnityException($"The Behaviour Tree {this.name} does not have a {typeof(T).Name} property named \"{name}\" " +
+                    $"in \"{_BehaviourTreeMachine.gameObject.name}\".");
             }
         }
 
@@ -120,14 +125,17 @@ namespace MoshitinEncoded.BehaviourTree
         public void SetParameter<T>(string name, T value)
         {
             var property = _Parameters.First(p => p.PropertyName == name);
-            if (property != null && property.IsOfType(typeof(T)))
+            if (!property)
             {
-                property.Value = value;
+                throw new UnityException($"The Behaviour Tree {this.name} does not have a property named \"{name}\" " +
+                    $"in \"{_BehaviourTreeMachine.gameObject.name}\".");
             }
-            else
+
+            var setted = property.SetValue(value);
+            if (!setted)
             {
-                throw new UnityException($"SetProperty exception in \"{_BehaviourTreeMachine.gameObject.name}\" GameObject." +
-                    $"{this.name} behaviour tree does not have a {typeof(T).Name} property \"{name}\".");
+                throw new UnityException($"The Behaviour Tree {this.name} does not have a {typeof(T).Name} property named \"{name}\" " +
+                    $"in \"{_BehaviourTreeMachine.gameObject.name}\".");
             }
         }
 

@@ -3,16 +3,15 @@ using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.UIElements;
 using MoshitinEncoded.BehaviourTree;
-using System;
 
 namespace MoshitinEncoded.Editor.BehaviourTree
 {
-    public class BehaviourGraphEditor : EditorWindow
+    internal class BehaviourTreeEditor : EditorWindow
     {
         [SerializeField] private VisualTreeAsset _VisualTreeAsset = default;
         [SerializeField] private BehaviourTreeController _TreeController;
 
-        private BehaviourGraphView _TreeView;
+        private BehaviourTreeView _TreeView;
 
         [OnOpenAsset]
         public static bool OnOpenAsset(int instanceId, int line)
@@ -25,11 +24,11 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             return false;
         }
 
-        [MenuItem("Window/Moshitin Encoded/Behaviour Graph")]
+        [MenuItem("Window/AI/Behaviour Tree")]
         public static void OpenWindow()
         {
-            BehaviourGraphEditor wnd = GetWindow<BehaviourGraphEditor>();
-            wnd.titleContent = new GUIContent("Behaviour Graph");
+            BehaviourTreeEditor wnd = GetWindow<BehaviourTreeEditor>();
+            wnd.titleContent = new GUIContent("Behaviour Tree");
         }
 
         public void CreateGUI()
@@ -40,7 +39,7 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             // Instantiate UXML
             _VisualTreeAsset.CloneTree(root);
 
-            _TreeView = root.Q<BehaviourGraphView>();
+            _TreeView = root.Q<BehaviourTreeView>();
             _TreeView.Init(this);
 
             OnSelectionChange();
@@ -82,7 +81,7 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             }
 
             var windowJson = EditorPrefs.GetString("BehaviourGraphWindow", JsonUtility.ToJson(this, false));
-            var window = JsonUtility.FromJson(windowJson, typeof(BehaviourGraphEditor)) as BehaviourGraphEditor;
+            var window = JsonUtility.FromJson(windowJson, typeof(BehaviourTreeEditor)) as BehaviourTreeEditor;
             if (window != null)
             {
                 _TreeController = window._TreeController;
@@ -144,14 +143,14 @@ namespace MoshitinEncoded.Editor.BehaviourTree
 
             if (Application.isPlaying)
             {
-                _TreeView.PopulateView(treeController);
                 if (_TreeController != null)
                 {
                     _TreeController.Updated -= OnTreeUpdate;
                 }
 
+                treeController.Updated += OnTreeUpdate;
+                _TreeView.PopulateView(treeController);
                 _TreeController = treeController;
-                _TreeController.Updated += OnTreeUpdate;
             }
             else
             {
