@@ -147,7 +147,7 @@ public partial class BehaviourTreeView : GraphView
         serializedNode.ApplyModifiedPropertiesWithoutUndo();
 
         node.name = nodeType.Name;
-        //node.hideFlags = HideFlags.HideInHierarchy;
+        node.hideFlags = HideFlags.HideInHierarchy;
 
         AddNodeToAsset(node, registerUndo);
 
@@ -292,7 +292,6 @@ public partial class BehaviourTreeView : GraphView
         }
 
         AddToSelection(nodeView);
-        Debug.Log("Node: " + node.name + ". Childs: [" + childNodes.Count + "]");
 
         return nodeView;
     }
