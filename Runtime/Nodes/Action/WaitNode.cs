@@ -8,12 +8,12 @@ namespace MoshitinEncoded.AIBehaviourTree
         public float duration = 1f;
         float startTime;
 
-        protected override void OnStart()
+        protected override void OnStart(BehaviourTreeRunner runner)
         {
             startTime = Time.time;
         }
 
-        protected override NodeState OnUpdate()
+        protected override NodeState OnUpdate(BehaviourTreeRunner runner)
         {
             if (TimeOver())
             {
@@ -23,7 +23,7 @@ namespace MoshitinEncoded.AIBehaviourTree
             return NodeState.Running;
         }
 
-        protected override void OnStop()
+        protected override void OnStop(BehaviourTreeRunner runner)
         {
             
         }

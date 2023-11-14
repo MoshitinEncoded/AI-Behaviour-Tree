@@ -9,18 +9,18 @@ namespace MoshitinEncoded.AIBehaviourTree
 
         public Node Child => _Child;
 
-        protected override void OnStart()
+        protected override void OnStart(BehaviourTreeRunner runner)
         {
             
         }
 
-        protected override void OnStop()
+        protected override void OnStop(BehaviourTreeRunner runner)
         {
             
         }
 
-        protected override NodeState OnUpdate() =>
-            _Child.Update();
+        protected override NodeState OnUpdate(BehaviourTreeRunner runner) =>
+            _Child.Update(runner);
 
         public override Node Clone(bool withChild)
         {

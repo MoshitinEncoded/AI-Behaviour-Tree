@@ -3,7 +3,7 @@ using MoshitinEncoded.AIBehaviourTree;
 
 namespace MoshitinEncoded
 {
-    public class BehaviourTreeMachine : MonoBehaviour
+    public class BehaviourTreeRunner : MonoBehaviour
     {
         public enum UpdateModeEnum
         {
@@ -93,7 +93,7 @@ namespace MoshitinEncoded
 
             PreUpdate?.Invoke();
 
-            _BehaviourTreeInstance.Update();
+            _BehaviourTreeInstance.Update(this);
 
             Updated?.Invoke();
         }
@@ -129,7 +129,6 @@ namespace MoshitinEncoded
         private void InitializeBehaviourTree()
         {
             _BehaviourTreeInstance = _BehaviourTree.Clone();
-            _BehaviourTreeInstance.Bind(this);
             Initialized?.Invoke();
         }
     }

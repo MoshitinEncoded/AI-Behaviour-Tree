@@ -23,7 +23,7 @@ namespace MoshitinEncoded.AIBehaviourTree
         [SerializeField] private List<Node> _Nodes = new();
         [SerializeField] private BlackboardParameter[] _Parameters;
 
-        private BehaviourTreeMachine _BehaviourTreeMachine;
+        private BehaviourTreeRunner _BehaviourTreeMachine;
 
         public Node RootNode => _RootNode;
 
@@ -34,27 +34,14 @@ namespace MoshitinEncoded.AIBehaviourTree
         public BlackboardParameter[] Parameters => _Parameters;
 
         /// <summary>
-        /// Binds this Behaviour Tree with a Behaviour Tree Machine.
-        /// </summary>
-        /// <param name="behaviourTreeMachine"> The <b>Behaviour Tree Machine</b> to bind with. </param>
-        public void Bind(BehaviourTreeMachine behaviourTreeMachine)
-        {
-            _BehaviourTreeMachine = behaviourTreeMachine;
-            Traverse(RootNode, node =>
-            {
-                node.Bind(behaviourTreeMachine);
-            });
-        }
-
-        /// <summary>
         /// Updates the Behaviour Tree.
         /// </summary>
         /// <returns> The new state of the Behaviour Tree. </returns>
-        public NodeState Update()
+        public NodeState Update(BehaviourTreeRunner runner)
         {
             if (RootNode.State == NodeState.Running)
             {
-                _State = RootNode.Update();
+                _State = RootNode.Update(runner);
             }
 
             Updated?.Invoke();

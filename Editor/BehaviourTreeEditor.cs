@@ -133,7 +133,7 @@ namespace MoshitinEncoded.Editor.AIBehaviourTree
         private BehaviourTree GetTreeFromGameObject()
         {
             if (Selection.activeGameObject != null &&
-                Selection.activeGameObject.TryGetComponent(out BehaviourTreeMachine behaviourMachine))
+                Selection.activeGameObject.TryGetComponent(out BehaviourTreeRunner behaviourMachine))
             {
                 var behaviourTree = behaviourMachine.BehaviourTree;
                 if (Application.isPlaying)

@@ -15,22 +15,21 @@ namespace MoshitinEncoded.AIBehaviourTree
         [HideInInspector] public bool Started { get; private set; } = false;
         [HideInInspector] public float StartTime { get; private set; } = float.MinValue;
         [HideInInspector] public float LastUpdateTime { get; private set; } = float.MinValue;
-        protected BehaviourTreeMachine BehaviourMachine { get; private set; }
 
-        public NodeState Update()
+        public NodeState Update(BehaviourTreeRunner runner)
         {
             if (!Started)
             {
-                OnStart();
+                OnStart(runner);
                 Started = true;
                 StartTime = Time.time;
             }
 
-            State = OnUpdate();
+            State = OnUpdate(runner);
 
             if (State == NodeState.Failure || State == NodeState.Success)
             {
-                OnStop();
+                OnStop(runner);
                 Started = false;
             }
 
@@ -40,13 +39,24 @@ namespace MoshitinEncoded.AIBehaviourTree
 
         public virtual Node Clone(bool withChildren = true) => Instantiate(this);
 
-        internal void Bind(BehaviourTreeMachine behaviourMachine) => BehaviourMachine = behaviourMachine;
+        /// <summary>
+        /// Called when this node starts running
+        /// </summary>
+        /// <param name="runner"> Runner that started the update. </param>
+        protected abstract void OnStart(BehaviourTreeRunner runner);
 
-        protected abstract void OnStart();
+        /// <summary>
+        /// Called each time this Node is updated.
+        /// </summary>
+        /// <param name="runner"> Runner that started the update. </param>
+        /// <returns></returns>
+        protected abstract NodeState OnUpdate(BehaviourTreeRunner runner);
 
-        protected abstract NodeState OnUpdate();
-
-        protected abstract void OnStop();
+        /// <summary>
+        /// Called when this Node stops running.
+        /// </summary>
+        /// <param name="runner"> Runner that started the update. </param>
+        protected abstract void OnStop(BehaviourTreeRunner runner);
     }
 
     public enum NodeState

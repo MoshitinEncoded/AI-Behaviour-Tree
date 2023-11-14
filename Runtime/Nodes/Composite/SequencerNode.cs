@@ -9,22 +9,22 @@ namespace MoshitinEncoded.AIBehaviourTree
         private bool _UpdateInTheSameFrame = false;
 
         private int current;
-        protected override void OnStart()
+        protected override void OnStart(BehaviourTreeRunner runner)
         {
             current = 0;
         }
 
-        protected override void OnStop()
+        protected override void OnStop(BehaviourTreeRunner runner)
         {
             
         }
 
-        protected override NodeState OnUpdate()
+        protected override NodeState OnUpdate(BehaviourTreeRunner runner)
         {
             do
             {
                 var child = Children[current];
-                switch (child.Update())
+                switch (child.Update(runner))
                 {
                     case NodeState.Running:
                         return NodeState.Running;
