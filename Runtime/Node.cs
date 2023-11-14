@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MoshitinEncoded.BehaviourTree
+namespace MoshitinEncoded.AIBehaviourTree
 {
     public abstract class Node : ScriptableObject
     {

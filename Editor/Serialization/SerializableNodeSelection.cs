@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MoshitinEncoded.Editor.BehaviourTree
+namespace MoshitinEncoded.Editor.AIBehaviourTree
 {
     internal class SerializableNodeSelection
     {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MoshitinEncoded.BehaviourTree
+namespace MoshitinEncoded.AIBehaviourTree
 {
     public interface IParentNode
     {

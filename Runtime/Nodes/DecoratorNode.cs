@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MoshitinEncoded.BehaviourTree
+namespace MoshitinEncoded.AIBehaviourTree
 {
     public abstract class DecoratorNode : Node, IParentNode
     {

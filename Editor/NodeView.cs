@@ -1,5 +1,5 @@
-using MoshitinEncoded.BehaviourTree;
-using Node = MoshitinEncoded.BehaviourTree.Node;
+using MoshitinEncoded.AIBehaviourTree;
+using Node = MoshitinEncoded.AIBehaviourTree.Node;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 
-namespace MoshitinEncoded.Editor.BehaviourTree
+namespace MoshitinEncoded.Editor.AIBehaviourTree
 {
     internal class NodeView : UnityEditor.Experimental.GraphView.Node
     {
@@ -27,7 +27,7 @@ namespace MoshitinEncoded.Editor.BehaviourTree
 
         protected SerializedObject SerializedNode => _SerializedNode;
 
-        public NodeView(Node node, BehaviourTreeView treeView) : base("Packages/com.moshitin-encoded.behaviourgraph/Editor/NodeView.uxml")
+        public NodeView(Node node, BehaviourTreeView treeView) : base("Packages/com.moshitin-encoded.aibehaviourtree/Editor/NodeView.uxml")
         {
             _Node = node;
             _SerializedNode = new SerializedObject(node);

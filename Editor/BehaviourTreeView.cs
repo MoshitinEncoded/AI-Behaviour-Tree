@@ -1,7 +1,7 @@
-using MoshitinEncoded.BehaviourTree;
-using Node = MoshitinEncoded.BehaviourTree.Node;
+using MoshitinEncoded.AIBehaviourTree;
+using Node = MoshitinEncoded.AIBehaviourTree.Node;
 using MoshitinEncoded.Editor;
-using MoshitinEncoded.Editor.BehaviourTree;
+using MoshitinEncoded.Editor.AIBehaviourTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ public partial class BehaviourTreeView : GraphView
 {
     public new class UxmlFactory : UxmlFactory<BehaviourTreeView, UxmlTraits> { }
 
-    private BehaviourTreeController _BehaviourTreeController;
+    private BehaviourTree _BehaviourTreeController;
     private SerializedObject _SerializedGraph;
     private NodeSearchWindow _SearchWindow;
     private EditorWindow _Window;
@@ -35,7 +35,7 @@ public partial class BehaviourTreeView : GraphView
 
         var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>
         (
-            "Packages/com.moshitin-encoded.behaviourgraph/Editor/BehaviourTreeEditor.uss"
+            "Packages/com.moshitin-encoded.aibehaviourtree/Editor/BehaviourTreeEditor.uss"
         );
 
         styleSheets.Add(styleSheet);
@@ -57,7 +57,7 @@ public partial class BehaviourTreeView : GraphView
         CreateBlackboard();
     }
 
-    public void PopulateView(BehaviourTreeController tree)
+    public void PopulateView(BehaviourTree tree)
     {
         if (tree == null)
         {

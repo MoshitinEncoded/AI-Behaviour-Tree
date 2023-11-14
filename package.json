@@ -1,7 +1,7 @@
 {
-  "name": "com.moshitin-encoded.behaviourgraph",
+  "name": "com.moshitin-encoded.aibehaviourtree",
   "version": "0.1.0",
-  "displayName": "Behaviour Graph",
+  "displayName": "AI Behaviour Tree",
   "description": "A visual, node-based Behaviour Tree tool for Unity.\n\nDependencies\n- https://github.com/MoshitinEncoded/METools.git",
   "unity": "2022.1",
   "documentationUrl": "https://example.com/",

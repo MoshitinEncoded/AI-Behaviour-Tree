@@ -1,4 +1,4 @@
-namespace MoshitinEncoded.BehaviourTree
+namespace MoshitinEncoded.AIBehaviourTree
 {
     [CreateNodeMenu("Decorator/Repeater")]
     public class RepeatNode : DecoratorNode

@@ -2,22 +2,22 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.UIElements;
-using MoshitinEncoded.BehaviourTree;
+using MoshitinEncoded.AIBehaviourTree;
 
-namespace MoshitinEncoded.Editor.BehaviourTree
+namespace MoshitinEncoded.Editor.AIBehaviourTree
 {
     internal class BehaviourTreeEditor : EditorWindow
     {
         [SerializeField] private VisualTreeAsset _VisualTreeAsset = default;
-        [SerializeField] private BehaviourTreeController _TreeController;
+        [SerializeField] private BehaviourTree _TreeController;
 
         private BehaviourTreeView _TreeView;
-        private BehaviourTreeController _TreeControllerActive;
+        private BehaviourTree _TreeControllerActive;
 
         [OnOpenAsset]
         public static bool OnOpenAsset(int instanceId, int line)
         {
-            if (Selection.activeObject is BehaviourTreeController)
+            if (Selection.activeObject is BehaviourTree)
             {
                 OpenWindow();
                 return true;
@@ -119,9 +119,9 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             PopulateTreeView(selectedTree);
         }
 
-        private BehaviourTreeController GetTreeFromSelection()
+        private BehaviourTree GetTreeFromSelection()
         {
-            var selectedTree = Selection.activeObject as BehaviourTreeController;
+            var selectedTree = Selection.activeObject as BehaviourTree;
             if (!selectedTree)
             {
                 selectedTree = GetTreeFromGameObject();
@@ -130,7 +130,7 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             return selectedTree;
         }
 
-        private BehaviourTreeController GetTreeFromGameObject()
+        private BehaviourTree GetTreeFromGameObject()
         {
             if (Selection.activeGameObject != null &&
                 Selection.activeGameObject.TryGetComponent(out BehaviourTreeMachine behaviourMachine))
@@ -148,7 +148,7 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             return null;
         }
 
-        private void PopulateTreeView(BehaviourTreeController treeController)
+        private void PopulateTreeView(BehaviourTree treeController)
         {
             if (treeController == null || _TreeView == null)
             {

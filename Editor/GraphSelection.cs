@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
-using MoshitinEncoded.BehaviourTree;
+using MoshitinEncoded.AIBehaviourTree;
 
-namespace MoshitinEncoded.Editor.BehaviourTree
+namespace MoshitinEncoded.Editor.AIBehaviourTree
 {
     internal class DeserializedSelection
     {

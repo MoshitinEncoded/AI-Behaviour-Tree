@@ -1,4 +1,4 @@
-namespace MoshitinEncoded.BehaviourTree
+namespace MoshitinEncoded.AIBehaviourTree
 {
     [CreateNodeMenu("Composite/Selector")]
     public class SelectorNode : CompositeNode

@@ -5,9 +5,9 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using MoshitinEncoded.BehaviourTree;
+using MoshitinEncoded.AIBehaviourTree;
 
-namespace MoshitinEncoded.Editor.BehaviourTree
+namespace MoshitinEncoded.Editor.AIBehaviourTree
 {
     internal class NodeSearchWindow : ScriptableObject, ISearchWindowProvider
     {
@@ -103,7 +103,7 @@ namespace MoshitinEncoded.Editor.BehaviourTree
 
         private static List<NodeInfo> GetNodesInfo()
         {
-            var nodeTypesCollection = TypeCache.GetTypesDerivedFrom<MoshitinEncoded.BehaviourTree.Node>();
+            var nodeTypesCollection = TypeCache.GetTypesDerivedFrom<MoshitinEncoded.AIBehaviourTree.Node>();
             var nodesInfo = new List<NodeInfo>();
 
             foreach (var nodeType in nodeTypesCollection)

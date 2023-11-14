@@ -1,7 +1,7 @@
-using MoshitinEncoded.BehaviourTree;
+using MoshitinEncoded.AIBehaviourTree;
 using UnityEditor;
 
-namespace MoshitinEncoded.Editor.BehaviourTree
+namespace MoshitinEncoded.Editor.AIBehaviourTree
 {
     internal class DecoratorNodeView : NodeView
     {

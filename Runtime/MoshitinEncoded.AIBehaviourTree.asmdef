@@ -1,5 +1,5 @@
 {
-    "name": "MoshitinEncoded.BehaviourGraph",
+    "name": "MoshitinEncoded.AIBehaviourTree",
     "rootNamespace": "",
     "references": [],
     "includePlatforms": [],

@@ -2,10 +2,10 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MoshitinEncoded.BehaviourTree
+namespace MoshitinEncoded.AIBehaviourTree
 {
     [CreateAssetMenu(fileName = "NewBehaviourTree", menuName = "MoshitinEncoded/Behaviour Tree")]
-    public class BehaviourTreeController : ScriptableObject
+    public class BehaviourTree : ScriptableObject
     {
 
 #if UNITY_EDITOR
@@ -66,10 +66,10 @@ namespace MoshitinEncoded.BehaviourTree
         /// Clones the Behaviour Tree with all his components.
         /// </summary>
         /// <returns> The Behaviour Tree clone. </returns>
-        public BehaviourTreeController Clone()
+        public BehaviourTree Clone()
         {
             // Clone behaviour tree and nodes
-            BehaviourTreeController clonedTree = Instantiate(this);
+            BehaviourTree clonedTree = Instantiate(this);
             clonedTree._RootNode = RootNode.Clone();
 
             // Clone nodes list

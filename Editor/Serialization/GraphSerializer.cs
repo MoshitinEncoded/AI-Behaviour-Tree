@@ -4,10 +4,10 @@ using Unity.Serialization.Json;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using MoshitinEncoded.BehaviourTree;
-using Node = MoshitinEncoded.BehaviourTree.Node;
+using MoshitinEncoded.AIBehaviourTree;
+using Node = MoshitinEncoded.AIBehaviourTree.Node;
 
-namespace MoshitinEncoded.Editor.BehaviourTree
+namespace MoshitinEncoded.Editor.AIBehaviourTree
 {
     internal static class GraphSerializer
     {

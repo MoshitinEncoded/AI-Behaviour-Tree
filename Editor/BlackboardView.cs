@@ -1,4 +1,4 @@
-using MoshitinEncoded.BehaviourTree;
+using MoshitinEncoded.AIBehaviourTree;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -7,11 +7,11 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace MoshitinEncoded.Editor.BehaviourTree
+namespace MoshitinEncoded.Editor.AIBehaviourTree
 {
     internal class BlackboardView : Blackboard
     {
-        private BehaviourTreeController _tree;
+        private BehaviourTree _tree;
         private SerializedObject _serializedTree;
         private BlackboardSection _propertiesSection;
 
@@ -25,7 +25,7 @@ namespace MoshitinEncoded.Editor.BehaviourTree
             moveItemRequested += OnMoveProperty;
         }
 
-        public void PopulateView(BehaviourTreeController tree, SerializedObject serializedTree)
+        public void PopulateView(BehaviourTree tree, SerializedObject serializedTree)
         {
             if (_tree == tree)
             {

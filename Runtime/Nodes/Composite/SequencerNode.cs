@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MoshitinEncoded.BehaviourTree
+namespace MoshitinEncoded.AIBehaviourTree
 {
     [CreateNodeMenu("Composite/Sequencer")]
     public class SequencerNode : CompositeNode

@@ -1,5 +1,5 @@
 using UnityEngine;
-using MoshitinEncoded.BehaviourTree;
+using MoshitinEncoded.AIBehaviourTree;
 
 namespace MoshitinEncoded
 {
@@ -32,22 +32,22 @@ namespace MoshitinEncoded
         public event System.Action PreUpdate;
 
         [SerializeField, Tooltip("The Behaviour Tree that will run on this machine.")]
-        private BehaviourTreeController _BehaviourTree;
+        private BehaviourTree _BehaviourTree;
 
         [SerializeField, Tooltip("How the Behaviour Tree will be updated.")]
         private UpdateModeEnum _UpdateMode = UpdateModeEnum.Update;
 
-        private BehaviourTreeController _BehaviourTreeInstance;
+        private BehaviourTree _BehaviourTreeInstance;
 
         /// <summary>
         /// The Behaviour Tree asset.
         /// </summary>
-        public BehaviourTreeController BehaviourTree => _BehaviourTree;
+        public BehaviourTree BehaviourTree => _BehaviourTree;
 
         /// <summary>
         /// The Behaviour Tree instance running on this machine.
         /// </summary>
-        public BehaviourTreeController BehaviourTreeInstance => _BehaviourTreeInstance;
+        public BehaviourTree BehaviourTreeInstance => _BehaviourTreeInstance;
 
         /// <summary>
         /// How the Behaviour Tree will be updated.
@@ -95,7 +95,7 @@ namespace MoshitinEncoded
         /// Changes the active Behaviour Tree. This action causes a new initialization.
         /// </summary>
         /// <param name="behaviourTree"></param>
-        public void ChangeBehaviourTree(BehaviourTreeController behaviourTree)
+        public void ChangeBehaviourTree(BehaviourTree behaviourTree)
         {
             _BehaviourTree = behaviourTree;
             InitializeBehaviourTree();
