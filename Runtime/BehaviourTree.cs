@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MoshitinEncoded.AIBehaviourTree
+namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [CreateAssetMenu(fileName = "NewBehaviourTree", menuName = "MoshitinEncoded/Behaviour Tree")]
     public class BehaviourTree : ScriptableObject
@@ -37,11 +37,11 @@ namespace MoshitinEncoded.AIBehaviourTree
         /// Updates the Behaviour Tree.
         /// </summary>
         /// <returns> The new state of the Behaviour Tree. </returns>
-        public NodeState Update(BehaviourTreeRunner runner)
+        public NodeState UpdateBehaviour(BehaviourTreeRunner runner)
         {
             if (RootNode.State == NodeState.Running)
             {
-                _State = RootNode.Update(runner);
+                _State = RootNode.UpdateNode(runner);
             }
 
             Updated?.Invoke();

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MoshitinEncoded.AIBehaviourTree
+namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     public abstract class Node : ScriptableObject
     {
@@ -16,7 +16,7 @@ namespace MoshitinEncoded.AIBehaviourTree
         [HideInInspector] public float StartTime { get; private set; } = float.MinValue;
         [HideInInspector] public float LastUpdateTime { get; private set; } = float.MinValue;
 
-        public NodeState Update(BehaviourTreeRunner runner)
+        public NodeState UpdateNode(BehaviourTreeRunner runner)
         {
             if (!Started)
             {

@@ -1,6 +1,6 @@
-using MoshitinEncoded.AIBehaviourTree;
+using MoshitinEncoded.AI.BehaviourTreeLib;
 
-namespace MoshitinEncoded.Editor.AIBehaviourTree
+namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
     internal class ActionNodeView : NodeView
     {

@@ -1,4 +1,4 @@
-namespace MoshitinEncoded.AIBehaviourTree
+namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [CreateNodeMenu("Decorator/Repeater")]
     public class RepeatNode : DecoratorNode
@@ -10,7 +10,7 @@ namespace MoshitinEncoded.AIBehaviourTree
 
         protected override NodeState OnUpdate(BehaviourTreeRunner runner)
         {
-            Child.Update(runner);
+            Child.UpdateNode(runner);
             return NodeState.Running;
         }
 

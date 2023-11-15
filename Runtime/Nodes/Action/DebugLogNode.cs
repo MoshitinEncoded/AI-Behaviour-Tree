@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MoshitinEncoded.AIBehaviourTree
+namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [CreateNodeMenu("Action/Debug Log")]
     public class DebugLogNode : ActionNode

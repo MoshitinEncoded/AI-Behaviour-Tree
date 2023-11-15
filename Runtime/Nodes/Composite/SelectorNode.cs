@@ -1,4 +1,4 @@
-namespace MoshitinEncoded.AIBehaviourTree
+namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [CreateNodeMenu("Composite/Selector")]
     public class SelectorNode : CompositeNode
@@ -17,7 +17,7 @@ namespace MoshitinEncoded.AIBehaviourTree
         {
             foreach (var child in Children)
             {
-                var childState = child.Update(runner);
+                var childState = child.UpdateNode(runner);
                 if (childState != NodeState.Failure)
                 {
                     return childState;

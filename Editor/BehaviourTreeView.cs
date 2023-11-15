@@ -1,7 +1,7 @@
-using MoshitinEncoded.AIBehaviourTree;
-using Node = MoshitinEncoded.AIBehaviourTree.Node;
+using MoshitinEncoded.AI.BehaviourTreeLib;
+using Node = MoshitinEncoded.AI.BehaviourTreeLib.Node;
 using MoshitinEncoded.Editor;
-using MoshitinEncoded.Editor.AIBehaviourTree;
+using MoshitinEncoded.Editor.AI.BehaviourTreeLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ public partial class BehaviourTreeView : GraphView
 
         var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>
         (
-            "Packages/com.moshitin-encoded.aibehaviourtree/Editor/BehaviourTreeEditor.uss"
+            "Packages/com.moshitin-encoded.ai.behaviourtree/Editor/BehaviourTreeEditor.uss"
         );
 
         styleSheets.Add(styleSheet);

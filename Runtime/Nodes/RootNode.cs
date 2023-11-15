@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MoshitinEncoded.AIBehaviourTree
+namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     public class RootNode : Node, IParentNode
     {
@@ -20,7 +20,7 @@ namespace MoshitinEncoded.AIBehaviourTree
         }
 
         protected override NodeState OnUpdate(BehaviourTreeRunner runner) =>
-            _Child.Update(runner);
+            _Child.UpdateNode(runner);
 
         public override Node Clone(bool withChild)
         {

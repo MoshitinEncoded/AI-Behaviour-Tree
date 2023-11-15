@@ -1,6 +1,6 @@
 using UnityEngine.AI;
 
-namespace MoshitinEncoded.AIBehaviourTree
+namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [AddParameterMenu("Component/NavMeshAgent")]
     internal class BlackboardParameter_NavMeshAgent : BlackboardParameter<NavMeshAgent> { }

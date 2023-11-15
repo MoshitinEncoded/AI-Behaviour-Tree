@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MoshitinEncoded.AIBehaviourTree
+namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [AddParameterMenu("Unity Object")]
     internal class BlackboardParameter_UnityObject : BlackboardParameter<Object> { }

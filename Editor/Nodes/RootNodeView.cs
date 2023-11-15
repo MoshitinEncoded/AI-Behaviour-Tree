@@ -1,7 +1,7 @@
 using UnityEditor.Experimental.GraphView;
-using Node = MoshitinEncoded.AIBehaviourTree.Node;
+using Node = MoshitinEncoded.AI.BehaviourTreeLib.Node;
 
-namespace MoshitinEncoded.Editor.AIBehaviourTree
+namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
     internal class RootNodeView : NodeView
     {

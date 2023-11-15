@@ -1,6 +1,6 @@
 using System;
 
-namespace MoshitinEncoded.AIBehaviourTree {
+namespace MoshitinEncoded.AI.BehaviourTreeLib {
     public class AddParameterMenuAttribute : Attribute
     {
         public string MenuPath = string.Empty;

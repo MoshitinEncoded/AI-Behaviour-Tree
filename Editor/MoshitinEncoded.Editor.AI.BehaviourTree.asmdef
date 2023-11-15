@@ -1,5 +1,5 @@
 {
-    "name": "MoshitinEncoded.Editor.AIBehaviourTree",
+    "name": "MoshitinEncoded.Editor.AI.BehaviourTree",
     "rootNamespace": "",
     "references": [
         "GUID:7267a0a8650911a4e9cabe0096093d59",

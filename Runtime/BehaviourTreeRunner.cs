@@ -1,7 +1,7 @@
 using UnityEngine;
-using MoshitinEncoded.AIBehaviourTree;
+using MoshitinEncoded.AI.BehaviourTreeLib;
 
-namespace MoshitinEncoded
+namespace MoshitinEncoded.AI
 {
     public class BehaviourTreeRunner : MonoBehaviour
     {
@@ -93,7 +93,7 @@ namespace MoshitinEncoded
 
             PreUpdate?.Invoke();
 
-            _BehaviourTreeInstance.Update(this);
+            _BehaviourTreeInstance.UpdateBehaviour(runner: this);
 
             Updated?.Invoke();
         }

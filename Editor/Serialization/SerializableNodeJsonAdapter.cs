@@ -1,8 +1,8 @@
-using MoshitinEncoded.AIBehaviourTree;
-using MoshitinEncoded.Editor.AIBehaviourTree;
+using MoshitinEncoded.AI.BehaviourTreeLib;
+using MoshitinEncoded.Editor.AI.BehaviourTreeLib;
 using Unity.Serialization.Json;
 
-namespace MoshitinEncoded.Editor.AIBehaviourTree
+namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
     internal class SerializableNodeJsonAdapter : IJsonAdapter<SerializableNode>
     {

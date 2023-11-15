@@ -2,9 +2,10 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.UIElements;
-using MoshitinEncoded.AIBehaviourTree;
+using MoshitinEncoded.AI;
+using MoshitinEncoded.AI.BehaviourTreeLib;
 
-namespace MoshitinEncoded.Editor.AIBehaviourTree
+namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
     internal class BehaviourTreeEditor : EditorWindow
     {

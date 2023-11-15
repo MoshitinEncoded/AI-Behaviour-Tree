@@ -1,4 +1,4 @@
-using MoshitinEncoded.AIBehaviourTree;
+using MoshitinEncoded.AI.BehaviourTreeLib;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -7,7 +7,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace MoshitinEncoded.Editor.AIBehaviourTree
+namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
     internal class BlackboardView : Blackboard
     {

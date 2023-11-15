@@ -1,4 +1,4 @@
-namespace MoshitinEncoded.AIBehaviourTree {
+namespace MoshitinEncoded.AI.BehaviourTreeLib {
     public class CreateNodeMenuAttribute : System.Attribute
     {
         public string Path;

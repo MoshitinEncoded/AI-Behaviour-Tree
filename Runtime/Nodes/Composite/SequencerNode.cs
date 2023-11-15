@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MoshitinEncoded.AIBehaviourTree
+namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [CreateNodeMenu("Composite/Sequencer")]
     public class SequencerNode : CompositeNode
@@ -24,7 +24,7 @@ namespace MoshitinEncoded.AIBehaviourTree
             do
             {
                 var child = Children[current];
-                switch (child.Update(runner))
+                switch (child.UpdateNode(runner))
                 {
                     case NodeState.Running:
                         return NodeState.Running;
