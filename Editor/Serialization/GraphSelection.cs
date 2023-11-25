@@ -4,9 +4,9 @@ using MoshitinEncoded.AI.BehaviourTreeLib;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
-    internal class DeserializedSelection
+    internal class GraphSelection
     {
         public Rect SelectionRect;
-        public Dictionary<Node, List<Node>> NodeChildsDict;
+        public Dictionary<Node, List<Node>> ChildsDict;
     }
 }

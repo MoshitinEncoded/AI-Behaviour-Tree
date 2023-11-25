@@ -11,6 +11,8 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         [SerializeField, HideInInspector] private Vector2 _Position;
 #endif
 
+        private bool _Initialized = false;
+
         [HideInInspector] public NodeState State { get; private set; } = NodeState.Running;
         [HideInInspector] public bool Started { get; private set; } = false;
         [HideInInspector] public float StartTime { get; private set; } = float.MinValue;
@@ -18,6 +20,11 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
 
         public NodeState UpdateNode(BehaviourTreeRunner runner)
         {
+            if (!_Initialized)
+            {
+                Init(runner);
+            }
+
             if (!Started)
             {
                 OnStart(runner);
@@ -27,7 +34,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
 
             State = OnUpdate(runner);
 
-            if (State == NodeState.Failure || State == NodeState.Success)
+            if (State != NodeState.Running)
             {
                 OnStop(runner);
                 Started = false;
@@ -37,13 +44,19 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
             return State;
         }
 
-        public virtual Node Clone(bool withChildren = true) => Instantiate(this);
+        internal virtual Node Clone(bool withChildren = true) => Instantiate(this);
+
+        /// <summary>
+        /// Called before the first Behaviour Tree update.
+        /// </summary>
+        /// <param name="runner"></param>
+        protected virtual void OnInitialize(BehaviourTreeRunner runner) {}
 
         /// <summary>
         /// Called when this node starts running
         /// </summary>
         /// <param name="runner"> Runner that started the update. </param>
-        protected abstract void OnStart(BehaviourTreeRunner runner);
+        protected virtual void OnStart(BehaviourTreeRunner runner) {}
 
         /// <summary>
         /// Called each time this Node is updated.
@@ -56,13 +69,19 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         /// Called when this Node stops running.
         /// </summary>
         /// <param name="runner"> Runner that started the update. </param>
-        protected abstract void OnStop(BehaviourTreeRunner runner);
+        protected virtual void OnStop(BehaviourTreeRunner runner) {}
+
+        private void Init(BehaviourTreeRunner runner)
+        {
+            OnInitialize(runner);
+            _Initialized = true;
+        }
     }
 
     public enum NodeState
-        {
-            Running,
-            Failure,
-            Success
-        }
+    {
+        Running,
+        Failure,
+        Success
+    }
 }

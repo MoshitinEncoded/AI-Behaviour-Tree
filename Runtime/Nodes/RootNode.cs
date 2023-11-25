@@ -20,9 +20,9 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         }
 
         protected override NodeState OnUpdate(BehaviourTreeRunner runner) =>
-            _Child.UpdateNode(runner);
+            (!_Child) ? NodeState.Failure : _Child.UpdateNode(runner);
 
-        public override Node Clone(bool withChild)
+        internal override Node Clone(bool withChild)
         {
             RootNode rootNode = Instantiate(this);
             if (_Child != null)

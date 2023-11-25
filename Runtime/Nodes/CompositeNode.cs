@@ -28,7 +28,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
             Children.Clear();
         }
 
-        public override Node Clone(bool withChildren)
+        internal override Node Clone(bool withChildren)
         {
             CompositeNode node = Instantiate(this);
             if (withChildren)

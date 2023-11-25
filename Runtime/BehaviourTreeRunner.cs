@@ -1,5 +1,6 @@
 using UnityEngine;
 using MoshitinEncoded.AI.BehaviourTreeLib;
+using MoshitinEncoded.GraphTools;
 
 namespace MoshitinEncoded.AI
 {
@@ -29,7 +30,7 @@ namespace MoshitinEncoded.AI
         /// <summary>
         /// Called before the Behaviour Tree update. Useful to <b>update</b> parameters.
         /// </summary>
-        public event System.Action PreUpdate;
+        public event System.Action WillUpdate;
 
         /// <summary>
         /// Called after the Behaviour Tree update.
@@ -91,7 +92,7 @@ namespace MoshitinEncoded.AI
                 return;
             }
 
-            PreUpdate?.Invoke();
+            WillUpdate?.Invoke();
 
             _BehaviourTreeInstance.UpdateBehaviour(runner: this);
 
@@ -111,20 +112,49 @@ namespace MoshitinEncoded.AI
         /// <summary>
         /// Returns the value of a parameter in the Behaviour Tree.
         /// </summary>
-        /// <typeparam name="T"> Parameter Type. (Inheritance supported). </typeparam>
+        /// <typeparam name="T"> Parameter Type. </typeparam>
         /// <param name="name"> Parameter name as shown on the blackboard. </param>
-        /// <returns> The parameter value if found, <b>default</b> value otherwise. </returns>
-        public T GetParameter<T>(string name) =>
-            _BehaviourTreeInstance.GetParameter<T>(name);
+        /// <returns> The parameter value if found, <b>default</b> otherwise. </returns>
+        public T GetParameter<T>(string name)
+        {
+            var parameter = GetParameterByRef<T>(name);
+            return parameter != null ? parameter.Value : default;
+        }
 
         /// <summary>
         /// Sets the value of a parameter in the Behaviour Tree.
         /// </summary>
-        /// <typeparam name="T"> Parameter Type. (Inheritance supported). </typeparam>
+        /// <typeparam name="T"> Parameter Type. </typeparam>
         /// <param name="name"> Parameter name as shown on the blackboard. </param>
         /// <param name="value"> New parameter value. </param>
-        public void SetParameter<T>(string name, T value) => 
-            _BehaviourTreeInstance.SetParameter(name, value);
+        public void SetParameter<T>(string name, T value)
+        {
+            var parameter = GetParameterByRef<T>(name);
+            if (parameter)
+            {
+                parameter.Value = value;
+            }
+        }
+
+        /// <summary>
+        /// Returns a parameter in the Behaviour Tree.
+        /// </summary>
+        /// <typeparam name="T"> Parameter Type. </typeparam>
+        /// <param name="name"> Parameter name as shown on the Blackboard. </param>
+        /// <returns> The parameter if found, <b>null</b> otherwise. </returns>
+        public BlackboardParameter<T> GetParameterByRef<T>(string name)
+        {
+            var parameter = _BehaviourTreeInstance.GetParameter<T>(name);
+
+            if (parameter == null)
+            {
+                Debug.LogError(
+                    message: $"Parameter \"{name}: {typeof(T).Name}\" doesn't exist in {_BehaviourTree.name} Behaviour Tree.",
+                    context: gameObject);
+            }
+
+            return parameter;
+        }
 
         private void InitializeBehaviourTree()
         {

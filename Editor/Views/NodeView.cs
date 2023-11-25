@@ -27,7 +27,8 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
         protected SerializedObject SerializedNode => _SerializedNode;
 
-        public NodeView(Node node, BehaviourTreeView treeView) : base("Packages/com.moshitin-encoded.ai.behaviourtree/Editor/NodeView.uxml")
+        public NodeView(Node node, BehaviourTreeView treeView) :
+            base("Packages/com.moshitin-encoded.ai.behaviourtree/Editor/Views/NodeView.uxml")
         {
             _Node = node;
             _SerializedNode = new SerializedObject(node);

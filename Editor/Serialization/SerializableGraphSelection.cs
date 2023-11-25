@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
-    internal class SerializableNodeSelection
+    internal class SerializableGraphSelection
     {
         public Rect SelectionRect;
-        public SerializableNode[] SerializedNodes;
+        public SerializableNode[] SerializableNodes;
     }
 }

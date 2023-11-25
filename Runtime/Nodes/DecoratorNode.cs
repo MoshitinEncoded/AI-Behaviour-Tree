@@ -28,7 +28,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
             _Child = null;
         }
 
-        public override Node Clone(bool withChild)
+        internal override Node Clone(bool withChild)
         {
             DecoratorNode node = Instantiate(this);
             if (withChild && Child != null)

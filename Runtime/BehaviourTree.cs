@@ -1,6 +1,7 @@
-using UnityEngine;
+using MoshitinEncoded.GraphTools;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
@@ -16,14 +17,12 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         /// <summary>
         /// Called when this Behaviour Tree has been updated.
         /// </summary>
-        public event System.Action Updated;
+        public event Action Updated;
 
         [SerializeField] private Node _RootNode;
         [SerializeField] private NodeState _State = NodeState.Running;
         [SerializeField] private List<Node> _Nodes = new();
-        [SerializeField] private BlackboardParameter[] _Parameters;
-
-        private BehaviourTreeRunner _BehaviourTreeMachine;
+        [SerializeField] private Blackboard _Blackboard;
 
         public Node RootNode => _RootNode;
 
@@ -31,7 +30,27 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
 
         public Node[] Nodes => _Nodes.ToArray();
 
-        public BlackboardParameter[] Parameters => _Parameters;
+        public Blackboard Blackboard => _Blackboard;
+
+        /// <summary>
+        /// TO-DO
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public Node CreateNode(Type type)
+        {
+            var node = CreateInstance(type) as Node;
+
+            if (node == null)
+            {
+                return null;
+            }
+
+            node.name = type.Name;
+            node.hideFlags = HideFlags.HideInHierarchy;
+
+            return node;
+        }
 
         /// <summary>
         /// Updates the Behaviour Tree.
@@ -39,6 +58,8 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         /// <returns> The new state of the Behaviour Tree. </returns>
         public NodeState UpdateBehaviour(BehaviourTreeRunner runner)
         {
+            if (!RootNode) return NodeState.Failure;
+
             if (RootNode.State == NodeState.Running)
             {
                 _State = RootNode.UpdateNode(runner);
@@ -57,6 +78,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         {
             // Clone behaviour tree and nodes
             BehaviourTree clonedTree = Instantiate(this);
+            
             clonedTree._RootNode = RootNode.Clone();
 
             // Clone nodes list
@@ -66,67 +88,45 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
                 clonedTree._Nodes.Add(node);
             });
 
-            // Clone properties
-            var clonedProperties = new BlackboardParameter[_Parameters.Length];
-            for (var i = 0; i < _Parameters.Length; i++)
-            {
-                clonedProperties[i] = _Parameters[i].Clone();
-            }
-            clonedTree._Parameters = clonedProperties;
+            // Clone blackboard
+            clonedTree._Blackboard = Blackboard.Clone();
 
             return clonedTree;
         }
 
         /// <summary>
-        /// Returns the value of a parameter in the behaviour tree.
+        /// Returns a parameter in the Behaviour Tree.
         /// </summary>
-        /// <typeparam name="T"> The parameter Type. Inheritance is supported. </typeparam>
-        /// <param name="name"> The parameter name. </param>
-        /// <returns> The parameter value if found, <b>default</b> value otherwise. </returns>
-        public T GetParameter<T>(string name)
+        /// <param name="name"> Parameter name as shown on the Blackboard. </param>
+        public BlackboardParameter GetParameter(string name)
         {
-            var property = _Parameters.First(p => p.PropertyName == name);
-            if (!property)
+            if (!Blackboard)
             {
-                throw new UnityException($"The Behaviour Tree {this.name} does not have a property named \"{name}\" " +
-                    $"in \"{_BehaviourTreeMachine.gameObject.name}\".");
+                throw new UnityException(
+                    $"An unexpected error ocurred with {name} Behaviour Tree. Try to exit play mode if you didn't and" +
+                    "select it in the project window to refresh it. If this doesn't solve the error, create a new one.");
             }
 
-            if (property.GetValue() is T value)
-            {
-                return value;
-            }
-            else
-            {
-                throw new UnityException($"The Behaviour Tree {this.name} does not have a {typeof(T).Name} property named \"{name}\" " +
-                    $"in \"{_BehaviourTreeMachine.gameObject.name}\".");
-            }
+            return Blackboard.GetParameter(name);
         }
 
         /// <summary>
-        /// Sets the value of a parameter in the Behaviour Tree.
+        /// Returns a parameter in the Behaviour Tree.
         /// </summary>
-        /// <typeparam name="T"> The parameter Type. Inheritance is supported. </typeparam>
-        /// <param name="name"> The parameter name. </param>
-        /// <param name="value"> The parameter value to set. </param>
-        public void SetParameter<T>(string name, T value)
+        /// <param name="name"> Parameter name as shown on the Blackboard. </param>
+        public BlackboardParameter<T> GetParameter<T>(string name)
         {
-            var property = _Parameters.First(p => p.PropertyName == name);
-            if (!property)
+            if (!Blackboard)
             {
-                throw new UnityException($"The Behaviour Tree {this.name} does not have a property named \"{name}\" " +
-                    $"in \"{_BehaviourTreeMachine.gameObject.name}\".");
+                throw new UnityException(
+                    $"An unexpected error ocurred with {name} Behaviour Tree. Try to exit play mode if you didn't and" +
+                    "select it in the project window to refresh it. If this doesn't solve the error, create a new one.");
             }
 
-            var setted = property.SetValue(value);
-            if (!setted)
-            {
-                throw new UnityException($"The Behaviour Tree {this.name} does not have a {typeof(T).Name} property named \"{name}\" " +
-                    $"in \"{_BehaviourTreeMachine.gameObject.name}\".");
-            }
+            return Blackboard.GetParameter<T>(name);
         }
 
-        private void Traverse(Node node, System.Action<Node> visiter)
+        private void Traverse(Node node, Action<Node> visiter)
         {
             if (node)
             {

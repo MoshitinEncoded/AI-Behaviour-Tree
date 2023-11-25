@@ -1,7 +1,9 @@
 {
     "name": "MoshitinEncoded.AI.BehaviourTree",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:109fd86aa490bef46bd3dab3a2f0ddf1"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

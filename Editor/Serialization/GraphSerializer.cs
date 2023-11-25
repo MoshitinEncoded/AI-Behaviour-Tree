@@ -18,19 +18,19 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         
         public static string SerializeSelection(Rect selectionRect, IEnumerable<GraphElement> elements)
         {
-            var serializableSelection = new SerializableNodeSelection()
+            var serializableSelection = new SerializableGraphSelection()
             {
                 SelectionRect = selectionRect,
-                SerializedNodes = GetSerializableNodes(elements)
+                SerializableNodes = GetSerializableNodes(elements)
             };
 
             return ToJson(serializableSelection);
         }
 
-        public static DeserializedSelection UnserializeSelection(string json)
+        public static GraphSelection UnserializeSelection(string json)
         {
             var serializableSelection = FromJson(json);
-            var serializedNodes = serializableSelection.SerializedNodes;
+            var serializedNodes = serializableSelection.SerializableNodes;
             var nodeChildsDict = new Dictionary<Node, List<Node>>();
 
             // Add node childs
@@ -44,10 +44,10 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
                 }
             }
 
-            var graphSelection = new DeserializedSelection()
+            var graphSelection = new GraphSelection()
             {
                 SelectionRect = serializableSelection.SelectionRect,
-                NodeChildsDict = nodeChildsDict
+                ChildsDict = nodeChildsDict
             };
 
             return graphSelection;
@@ -116,10 +116,10 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             return elementsToReturn;
         }
 
-        private static string ToJson(SerializableNodeSelection serializableSelection) =>
+        private static string ToJson(SerializableGraphSelection serializableSelection) =>
             JsonSerialization.ToJson(serializableSelection, _SerializationParameters);
 
-        private static SerializableNodeSelection FromJson(string data) =>
-            JsonSerialization.FromJson<SerializableNodeSelection>(data, _SerializationParameters);
+        private static SerializableGraphSelection FromJson(string data) =>
+            JsonSerialization.FromJson<SerializableGraphSelection>(data, _SerializationParameters);
     }
 }

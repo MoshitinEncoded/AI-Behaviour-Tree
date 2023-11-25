@@ -9,20 +9,21 @@ using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
+using MoshitinEncoded.Editor.GraphTools;
 
 public partial class BehaviourTreeView : GraphView
 {
     public new class UxmlFactory : UxmlFactory<BehaviourTreeView, UxmlTraits> { }
 
-    private BehaviourTree _BehaviourTreeController;
-    private SerializedObject _SerializedGraph;
+    private BehaviourTree _BehaviourTree;
+    private SerializedObject _SerializedTree;
     private NodeSearchWindow _SearchWindow;
     private EditorWindow _Window;
     private BlackboardView _BlackboardView;
     private Vector2 _MousePosition;
     private RootNodeView _RootNodeView;
 
-    public bool IsPopulated => _BehaviourTreeController != null;
+    public bool IsPopulated => _BehaviourTree != null;
 
     public BehaviourTreeView()
     {
@@ -35,7 +36,7 @@ public partial class BehaviourTreeView : GraphView
 
         var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>
         (
-            "Packages/com.moshitin-encoded.ai.behaviourtree/Editor/BehaviourTreeEditor.uss"
+            "Packages/com.moshitin-encoded.ai.behaviourtree/Editor/Styles/BehaviourTreeEditor.uss"
         );
 
         styleSheets.Add(styleSheet);
@@ -64,36 +65,26 @@ public partial class BehaviourTreeView : GraphView
             return;
         }
 
-        if (_BehaviourTreeController != tree)
+        if (_BehaviourTree != tree)
         {
-            _BehaviourTreeController = tree;
-            _SerializedGraph = new SerializedObject(tree);
+            _BehaviourTree = tree;
+            _SerializedTree = new SerializedObject(tree);
         }
 
         graphViewChanged -= OnGraphViewChange;
         DeleteElements(graphElements);
         graphViewChanged += OnGraphViewChange;
 
-        _BlackboardView.PopulateView(_BehaviourTreeController, _SerializedGraph);
-
-        if (_BehaviourTreeController.RootNode == null)
-        {
-            _SerializedGraph.Update();
-
-            SerializedProperty rootNodeProperty = _SerializedGraph.FindProperty("_RootNode");
-            rootNodeProperty.objectReferenceValue = CreateNode(typeof(RootNode), "Root", Vector2.zero, false) as RootNode;
-
-            _SerializedGraph.ApplyModifiedPropertiesWithoutUndo();
-        }
+        _BlackboardView.PopulateView(_BehaviourTree.Blackboard, _BehaviourTree.name, typeof(BehaviourTreeParameter<>));
 
         // Creates node views
-        foreach (var node in _BehaviourTreeController.Nodes)
+        foreach (var node in _BehaviourTree.Nodes)
         {
             CreateNodeView(node);
         }
 
         // Creates node edges
-        foreach (var node in _BehaviourTreeController.Nodes)
+        foreach (var node in _BehaviourTree.Nodes)
         {
             if (node is IParentNode parentNode)
             {
@@ -128,17 +119,16 @@ public partial class BehaviourTreeView : GraphView
         endPort.node != startPort.node).ToList();
     }
 
-    internal Node CreateNode(Type nodeType, string nodeTitle, Vector2 position, bool registerUndo = true)
+    internal Node CreateNode(Type nodeType, string nodeTitle, Vector2 position)
     {
-        // Creates the node
-        var node = ScriptableObject.CreateInstance(nodeType) as Node;
+        var node = _BehaviourTree.CreateNode(nodeType);
 
         if (node == null)
         {
             return null;
         }
 
-        AddNodeToProject(node, registerUndo);
+        AddNodeToProject(node);
 
         var serializedNode = new SerializedObject(node);
         serializedNode.FindProperty("_Guid").stringValue = GUID.Generate().ToString();
@@ -146,10 +136,7 @@ public partial class BehaviourTreeView : GraphView
         serializedNode.FindProperty("_Title").stringValue = nodeTitle;
         serializedNode.ApplyModifiedPropertiesWithoutUndo();
 
-        node.name = nodeType.Name;
-        node.hideFlags = HideFlags.HideInHierarchy;
-
-        AddNodeToAsset(node, registerUndo);
+        AddNodeToAsset(node);
 
         return node;
     }
@@ -223,7 +210,7 @@ public partial class BehaviourTreeView : GraphView
     private void OnPasteElements(string operationName, string data)
     {
         var selection = GraphSerializer.UnserializeSelection(data);
-        var topParents = GetTopParents(selection.NodeChildsDict);
+        var topParents = GetTopParents(selection.ChildsDict);
 
         ClearSelection();
 
@@ -232,18 +219,18 @@ public partial class BehaviourTreeView : GraphView
             PasteNodeHierarchy(
                 operationName: operationName,
                 selectionRect: selection.SelectionRect,
-                nodeChildsDict: selection.NodeChildsDict,
+                childsDict: selection.ChildsDict,
                 node: parent
             );
         }
     }
 
-    private NodeView PasteNodeHierarchy(string operationName, Rect selectionRect, Dictionary<Node, List<Node>> nodeChildsDict, Node node)
+    private NodeView PasteNodeHierarchy(string operationName, Rect selectionRect, Dictionary<Node, List<Node>> childsDict, Node node)
     {
         var isParentNode = node is IParentNode;
-        var childNodes = nodeChildsDict[node];
+        var childNodes = childsDict[node];
 
-        AddNodeToProject(node, registerUndo: true);
+        AddNodeToProject(node);
 
         // Set Guid and Position
         var serializedNode = new SerializedObject(node);
@@ -261,14 +248,14 @@ public partial class BehaviourTreeView : GraphView
         serializedNode.FindProperty("_Guid").stringValue = GUID.Generate().ToString();
         serializedNode.ApplyModifiedProperties();
 
-        AddNodeToAsset(node, registerUndo: true);
+        AddNodeToAsset(node);
 
         // Paste and get child nodes
         var nodeView = GetNodeView(node);
         var childNodeViews = new List<NodeView>();
         foreach (var childNode in childNodes)
         {
-            childNodeViews.Add(PasteNodeHierarchy(operationName, selectionRect, nodeChildsDict, childNode));
+            childNodeViews.Add(PasteNodeHierarchy(operationName, selectionRect, childsDict, childNode));
         }
 
         Undo.RecordObject(node, "Create Node (Behaviour Tree)");
@@ -312,7 +299,7 @@ public partial class BehaviourTreeView : GraphView
 
     private void OnUndoRedo()
     {
-        PopulateView(_BehaviourTreeController);
+        PopulateView(_BehaviourTree);
     }
 
     private void AddSearchWindow()
@@ -331,26 +318,26 @@ public partial class BehaviourTreeView : GraphView
 
     private void LoadViewTransform()
     {
-        if (_BehaviourTreeController == null)
+        if (_BehaviourTree == null)
         {
             return;
         }
 
-        viewTransform.position = _SerializedGraph.FindProperty("_GraphPosition").vector2Value;
-        viewTransform.scale = _SerializedGraph.FindProperty("_GraphScale").vector2Value;
+        viewTransform.position = _SerializedTree.FindProperty("_GraphPosition").vector2Value;
+        viewTransform.scale = _SerializedTree.FindProperty("_GraphScale").vector2Value;
     }
 
     private void OnViewTransformChanged(GraphView graphView)
     {
-        if (_BehaviourTreeController == null)
+        if (_BehaviourTree == null)
         {
             return;
         }
 
-        _SerializedGraph.Update();
-        _SerializedGraph.FindProperty("_GraphPosition").vector2Value = viewTransform.position;
-        _SerializedGraph.FindProperty("_GraphScale").vector2Value = viewTransform.scale;
-        _SerializedGraph.ApplyModifiedPropertiesWithoutUndo();
+        _SerializedTree.Update();
+        _SerializedTree.FindProperty("_GraphPosition").vector2Value = viewTransform.position;
+        _SerializedTree.FindProperty("_GraphScale").vector2Value = viewTransform.scale;
+        _SerializedTree.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private GraphViewChange OnGraphViewChange(GraphViewChange graphViewChange)
@@ -369,7 +356,7 @@ public partial class BehaviourTreeView : GraphView
             }
             else if (element is BlackboardField blackboardField)
             {
-                _BlackboardView.DeleteProperty(blackboardField);
+                _BlackboardView.RemoveParameter(blackboardField);
             }
         });
 
@@ -392,34 +379,22 @@ public partial class BehaviourTreeView : GraphView
         return graphViewChange;
     }
 
-    private void AddNodeToProject(Node node, bool registerUndo)
+    private void AddNodeToProject(Node node)
     {
         if (!Application.isPlaying)
         {
-            AssetDatabase.AddObjectToAsset(node, _BehaviourTreeController);
+            AssetDatabase.AddObjectToAsset(node, _BehaviourTree);
         }
 
-        if (registerUndo)
-        {
-            Undo.RegisterCreatedObjectUndo(node, "Create Node (Behaviour Tree)");
-        }
+        Undo.RegisterCreatedObjectUndo(node, "Create Node (Behaviour Tree)");
     }
 
-    private void AddNodeToAsset(Node node, bool registerUndo)
+    private void AddNodeToAsset(Node node)
     {
-        _SerializedGraph.Update();
-        
-        var nodesProperty = _SerializedGraph.FindProperty("_Nodes");
+        _SerializedTree.Update();
+        var nodesProperty = _SerializedTree.FindProperty("_Nodes");
         nodesProperty.AddToObjectArray(node);
-
-        if (registerUndo)
-        {
-            _SerializedGraph.ApplyModifiedProperties();
-        }
-        else
-        {
-            _SerializedGraph.ApplyModifiedPropertiesWithoutUndo();
-        }
+        _SerializedTree.ApplyModifiedProperties();
 
         CreateNodeView(node);
     }
@@ -431,14 +406,14 @@ public partial class BehaviourTreeView : GraphView
             return;
         }
 
-        _SerializedGraph.Update();
+        _SerializedTree.Update();
 
-        var nodesProperty = _SerializedGraph.FindProperty("_Nodes");
+        var nodesProperty = _SerializedTree.FindProperty("_Nodes");
         var nodeRemoved = nodesProperty.RemoveFromObjectArray(node);
 
         if (nodeRemoved)
         {
-            _SerializedGraph.ApplyModifiedProperties();
+            _SerializedTree.ApplyModifiedProperties();
             Undo.DestroyObjectImmediate(node);
         }
     }

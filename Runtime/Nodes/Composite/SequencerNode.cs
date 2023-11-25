@@ -21,6 +21,11 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
 
         protected override NodeState OnUpdate(BehaviourTreeRunner runner)
         {
+            if (Children.Count < 1)
+            {
+                return NodeState.Success;
+            }
+
             do
             {
                 var child = Children[current];

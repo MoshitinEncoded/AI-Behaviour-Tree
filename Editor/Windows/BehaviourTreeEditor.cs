@@ -10,10 +10,11 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
     internal class BehaviourTreeEditor : EditorWindow
     {
         [SerializeField] private VisualTreeAsset _VisualTreeAsset = default;
-        [SerializeField] private BehaviourTree _TreeController;
+        [SerializeField] private BehaviourTree _BehaviourTree;
 
         private BehaviourTreeView _TreeView;
-        private BehaviourTree _TreeControllerActive;
+        private BehaviourTree _BehaviourTreeActive;
+        private readonly string _EditorPrefKey = "BehaviourTree";
 
         [OnOpenAsset]
         public static bool OnOpenAsset(int instanceId, int line)
@@ -67,32 +68,32 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
         private void PopulateViewFromBackup()
         {
-            if (_TreeController == null)
+            if (_BehaviourTree == null)
             {
                 LoadWindowState();
             }
 
-            PopulateTreeView(_TreeController);
+            PopulateTreeView(_BehaviourTree);
         }
 
         private void SaveWindowState()
         {
-            var windowJson = JsonUtility.ToJson(this, false);
-            EditorPrefs.SetString("BehaviourGraphWindow", windowJson);
+            var treeJson = _BehaviourTree != null ? JsonUtility.ToJson(_BehaviourTree, false) : "";
+            EditorPrefs.SetString(_EditorPrefKey, treeJson);
         }
 
         private void LoadWindowState()
         {
-            if (_TreeController != null)
+            if (_BehaviourTree != null)
             {
                 return;
             }
 
-            var windowJson = EditorPrefs.GetString("BehaviourGraphWindow", JsonUtility.ToJson(this, false));
-            var window = JsonUtility.FromJson(windowJson, typeof(BehaviourTreeEditor)) as BehaviourTreeEditor;
-            if (window != null)
+            var treeJson = EditorPrefs.GetString(_EditorPrefKey);
+            var behaviourTree = treeJson != "" ? JsonUtility.FromJson<BehaviourTree>(treeJson) : null;
+            if (behaviourTree != null)
             {
-                _TreeController = window._TreeController;
+                _BehaviourTree = behaviourTree;
             }
         }
 
@@ -101,7 +102,7 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             switch (change)
             {
                 case PlayModeStateChange.EnteredEditMode:
-                    PopulateTreeView(_TreeController);
+                    PopulateViewFromBackup();
                     break;
                 case PlayModeStateChange.EnteredPlayMode:
                     PopulateViewFromSelection();
@@ -139,7 +140,7 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
                 var behaviourTree = behaviourMachine.BehaviourTree;
                 if (Application.isPlaying)
                 {
-                    _TreeController = behaviourMachine.BehaviourTree;
+                    _BehaviourTree = behaviourMachine.BehaviourTree;
                     behaviourTree = behaviourMachine.BehaviourTreeInstance;
                 }
                 
@@ -149,31 +150,31 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             return null;
         }
 
-        private void PopulateTreeView(BehaviourTree treeController)
+        private void PopulateTreeView(BehaviourTree behaviourTree)
         {
-            if (treeController == null || _TreeView == null)
+            if (behaviourTree == null || _TreeView == null)
             {
                 return;
             }
 
             if (Application.isPlaying)
             {
-                if (_TreeControllerActive != null)
+                if (_BehaviourTreeActive != null)
                 {
-                    _TreeControllerActive.Updated -= OnTreeUpdate;
+                    _BehaviourTreeActive.Updated -= OnTreeUpdate;
                 }
 
-                treeController.Updated += OnTreeUpdate;
-                _TreeView.PopulateView(treeController);
-                _TreeControllerActive = treeController;
+                behaviourTree.Updated += OnTreeUpdate;
+                _TreeView.PopulateView(behaviourTree);
+                _BehaviourTreeActive = behaviourTree;
             }
             else
             {
-                if (AssetDatabase.CanOpenAssetInEditor(treeController.GetInstanceID()))
+                if (AssetDatabase.CanOpenAssetInEditor(behaviourTree.GetInstanceID()))
                 {
-                    _TreeView.PopulateView(treeController);
-                    _TreeController = treeController;
-                    _TreeControllerActive = treeController;
+                    _TreeView.PopulateView(behaviourTree);
+                    _BehaviourTree = behaviourTree;
+                    _BehaviourTreeActive = behaviourTree;
                 }
             }
         }
