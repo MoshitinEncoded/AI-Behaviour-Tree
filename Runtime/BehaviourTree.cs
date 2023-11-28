@@ -10,7 +10,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
     {
 
 #if UNITY_EDITOR
-        [SerializeField, HideInInspector] private Vector2 _GraphPosition = Vector2.zero;
+        [SerializeField, HideInInspector] private Vector2 _GraphPosition = new(512,200);
         [SerializeField, HideInInspector] private Vector2 _GraphScale = Vector2.one;
 #endif
 
@@ -19,10 +19,10 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         /// </summary>
         public event Action Updated;
 
-        [SerializeField] private Node _RootNode;
-        [SerializeField] private NodeState _State = NodeState.Running;
-        [SerializeField] private List<Node> _Nodes = new();
-        [SerializeField] private Blackboard _Blackboard;
+        [SerializeField, HideInInspector] private Node _RootNode;
+        [SerializeField, HideInInspector] private NodeState _State = NodeState.Running;
+        [SerializeField, HideInInspector] private List<Node> _Nodes = new();
+        [SerializeField, HideInInspector] private Blackboard _Blackboard;
 
         public Node RootNode => _RootNode;
 
