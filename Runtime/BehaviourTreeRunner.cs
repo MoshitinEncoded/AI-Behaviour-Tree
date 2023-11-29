@@ -139,6 +139,25 @@ namespace MoshitinEncoded.AI
         /// <summary>
         /// Returns a parameter in the Behaviour Tree.
         /// </summary>
+        /// <param name="name"> Parameter name as shown on the Blackboard. </param>
+        /// <returns> The parameter if found, <b>null</b> otherwise. </returns>
+        public BlackboardParameter GetParameterByRef(string name)
+        {
+            var parameter = _BehaviourTreeInstance.GetParameter(name);
+
+            if (parameter == null)
+            {
+                Debug.LogError(
+                    message: $"Parameter \"{name}\" doesn't exist in {_BehaviourTree.name} Behaviour Tree.",
+                    context: gameObject);
+            }
+
+            return parameter;
+        }
+
+        /// <summary>
+        /// Returns a parameter in the Behaviour Tree.
+        /// </summary>
         /// <typeparam name="T"> Parameter Type. </typeparam>
         /// <param name="name"> Parameter name as shown on the Blackboard. </param>
         /// <returns> The parameter if found, <b>null</b> otherwise. </returns>
