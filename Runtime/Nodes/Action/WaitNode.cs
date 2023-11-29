@@ -5,17 +5,22 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
     [CreateNodeMenu("Action/Wait")]
     public class WaitNode : ActionNode
     {
-        public float duration = 1f;
-        float startTime;
+        [Space]
+        [Tooltip("Time in seconds to wait.")]
+        [SerializeField] private float _Time = 1f;
+
+        private float _StartTime;
+
+        public float Time => _Time;
 
         protected override void OnStart(BehaviourTreeRunner runner)
         {
-            startTime = Time.time;
+            _StartTime = UnityEngine.Time.time;
         }
 
         protected override NodeState OnUpdate(BehaviourTreeRunner runner)
         {
-            if (TimeOver())
+            if (IsTimeOver())
             {
                 return NodeState.Success;
             }
@@ -23,12 +28,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
             return NodeState.Running;
         }
 
-        protected override void OnStop(BehaviourTreeRunner runner)
-        {
-            
-        }
-
-        private bool TimeOver() =>
-            Time.time - startTime >= duration;
+        private bool IsTimeOver() =>
+            UnityEngine.Time.time - _StartTime >= _Time;
     }
 }
