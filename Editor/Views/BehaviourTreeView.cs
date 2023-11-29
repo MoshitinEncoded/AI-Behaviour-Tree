@@ -77,6 +77,8 @@ public partial class BehaviourTreeView : GraphView
 
         _BlackboardView.PopulateView(_BehaviourTree.Blackboard, _BehaviourTree.name, typeof(BehaviourTreeParameter<>));
 
+        RemoveNullNodes();
+
         // Creates node views
         foreach (var node in _BehaviourTree.Nodes)
         {
@@ -162,7 +164,7 @@ public partial class BehaviourTreeView : GraphView
         elements = FilterOutRootNode(elements);
         var nodeViews = elements.Where(element => element is NodeView);
         var selectionRect = CalculateRectToFitElements(nodeViews);
-        
+
         return GraphSerializer.SerializeSelection(selectionRect, elements);
     }
 
@@ -175,9 +177,9 @@ public partial class BehaviourTreeView : GraphView
             {
                 newElements.Add(nodeView);
             }
-            else if (element is Edge edge && 
-                elements.Contains(edge.input.node) && 
-                elements.Contains(edge.output.node) && 
+            else if (element is Edge edge &&
+                elements.Contains(edge.input.node) &&
+                elements.Contains(edge.output.node) &&
                 (edge.output.node as NodeView).Node is not RootNode)
             {
                 newElements.Add(edge);
@@ -416,6 +418,24 @@ public partial class BehaviourTreeView : GraphView
             _SerializedTree.ApplyModifiedProperties();
             Undo.DestroyObjectImmediate(node);
         }
+    }
+
+    private void RemoveNullNodes()
+    {
+        for (int i = _BehaviourTree.Nodes.Count() - 1; i >= 0; i--)
+        {
+            if (_BehaviourTree.Nodes[i] == null)
+            {
+                RemoveNullNodeAtIndex(i);
+            }
+        }
+    }
+
+    private void RemoveNullNodeAtIndex(int i)
+    {
+        _SerializedTree.Update();
+        _SerializedTree.FindProperty("_Nodes").DeleteArrayElementAtIndex(i);
+        _SerializedTree.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private void CreateNodeView(Node node)
