@@ -17,6 +17,8 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         {
             foreach (var child in Children)
             {
+                if (child == null) continue;
+                
                 var childState = child.UpdateNode(runner);
                 if (childState != NodeState.Failure)
                 {

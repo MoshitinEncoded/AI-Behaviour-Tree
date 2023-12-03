@@ -77,37 +77,16 @@ public partial class BehaviourTreeView : GraphView
 
         _BlackboardView.PopulateView(_BehaviourTree.Blackboard, _BehaviourTree.name, typeof(BehaviourTreeParameter<>));
 
-        RemoveNullNodes();
+        CreateNodeViews();
+        CreateEdges();
 
-        // Creates node views
-        foreach (var node in _BehaviourTree.Nodes)
-        {
-            CreateNodeView(node);
-        }
-
-        // Creates node edges
-        foreach (var node in _BehaviourTree.Nodes)
-        {
-            if (node is IParentNode parentNode)
-            {
-                var children = parentNode.GetChildren();
-                children.ForEach(childNode =>
-                {
-                    NodeView parentView = GetNodeView(node);
-                    NodeView childView = GetNodeView(childNode);
-
-                    Edge edge = parentView.Output.ConnectTo(childView.Input);
-                    AddElement(edge);
-                });
-            }
-        }
+        RemoveNullReferences();
 
         LoadViewTransform();
     }
 
     public void UpdateNodeStates()
     {
-        //_RootNodeView?.UpdateState();
         nodes.ForEach(node =>
         {
             (node as NodeView).UpdateState();
@@ -141,6 +120,37 @@ public partial class BehaviourTreeView : GraphView
         AddNodeToAsset(node);
 
         return node;
+    }
+
+    private void CreateNodeViews()
+    {
+        foreach (var node in _BehaviourTree.Nodes)
+        {
+            if (node != null)
+            {
+                CreateNodeView(node);
+            }
+        }
+    }
+
+    private void CreateEdges()
+    {
+        foreach (var node in _BehaviourTree.Nodes)
+        {
+            if (!node) continue;
+            if (node is IParentNode parentNode)
+            {
+                var children = parentNode.GetChildren();
+                children.ForEach(childNode =>
+                {
+                    NodeView parentView = GetNodeView(node);
+                    NodeView childView = GetNodeView(childNode);
+
+                    Edge edge = parentView.Output.ConnectTo(childView.Input);
+                    AddElement(edge);
+                });
+            }
+        }
     }
 
     private void OnMouseMove(MouseMoveEvent evt)
@@ -420,13 +430,20 @@ public partial class BehaviourTreeView : GraphView
         }
     }
 
-    private void RemoveNullNodes()
+    private void RemoveNullReferences()
     {
-        for (int i = _BehaviourTree.Nodes.Count() - 1; i >= 0; i--)
+        var nodes = _BehaviourTree.Nodes;
+        for (int i = nodes.Length - 1; i >= 0; i--)
         {
-            if (_BehaviourTree.Nodes[i] == null)
+            var node = nodes[i];
+            if (!node)
             {
                 RemoveNullNodeAtIndex(i);
+            }
+            else if (node is IParentNode)
+            {
+                var parentView = GetNodeView(node);
+                parentView.RemoveNullChilds();
             }
         }
     }
@@ -440,28 +457,30 @@ public partial class BehaviourTreeView : GraphView
 
     private void CreateNodeView(Node node)
     {
-        NodeView nodeView;
+        NodeView nodeView = null;
         switch (node)
         {
-            case RootNode:
-                _RootNodeView = new RootNodeView(node, this);
+            case RootNode tnode:
+                _RootNodeView = new RootNodeView(tnode, this);
                 nodeView = _RootNodeView;
                 break;
-            case DecoratorNode:
-                nodeView = new DecoratorNodeView(node, this);
+            case DecoratorNode tnode:
+                nodeView = new DecoratorNodeView(tnode, this);
                 break;
-            case CompositeNode:
-                nodeView = new CompositeNodeView(node, this);
+            case CompositeNode tnode:
+                nodeView = new CompositeNodeView(tnode, this);
                 break;
-            case ConditionNode:
-                nodeView = new ConditionNodeView(node, this);
+            case ConditionNode tnode:
+                nodeView = new ConditionNodeView(tnode, this);
                 break;
-            case ActionNode:
-                nodeView = new ActionNodeView(node, this);
+            case ActionNode tnode:
+                nodeView = new ActionNodeView(tnode, this);
                 break;
-            default:
-                nodeView = new NodeView(node, this);
-                break;
+        }
+
+        if (nodeView == null)
+        {
+            return;
         }
 
         AddElement(nodeView);

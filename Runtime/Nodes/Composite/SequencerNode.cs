@@ -16,7 +16,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
 
         protected override void OnStop(BehaviourTreeRunner runner)
         {
-            
+
         }
 
         protected override NodeState OnUpdate(BehaviourTreeRunner runner)
@@ -29,6 +29,12 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
             do
             {
                 var child = Children[current];
+                if (child == null)
+                {
+                    current++;
+                    continue;
+                }
+
                 switch (child.UpdateNode(runner))
                 {
                     case NodeState.Running:

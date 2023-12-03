@@ -3,11 +3,11 @@ using UnityEditor;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
-    internal class DecoratorNodeView : NodeView
+    internal class DecoratorNodeView : NodeView<DecoratorNode>
     {
         private readonly SerializedProperty _ChildProperty;
         
-        public DecoratorNodeView(Node node, BehaviourTreeView treeView) : base(node, treeView)
+        public DecoratorNodeView(DecoratorNode node, BehaviourTreeView treeView) : base(node, treeView)
         {
             _ChildProperty = SerializedNode.FindProperty("_Child");
         }

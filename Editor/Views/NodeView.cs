@@ -9,45 +9,20 @@ using System.Collections.Generic;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
-    internal class NodeView : UnityEditor.Experimental.GraphView.Node
+    internal abstract class NodeView : UnityEditor.Experimental.GraphView.Node
     {
         protected bool _IsStateVisible = false;
-        [SerializeField] private Node _Node;
-        private readonly SerializedObject _SerializedNode;
         private static readonly float _HideDelaySeconds = 0.2f;
         private NodeState _PrevState = NodeState.Running;
 
-        public Node Node => _Node;
+        public abstract Node Node { get; }
 
-        public Port Input { get; private set; }
+        public Port Input { get; protected set; }
 
-        public Port Output { get; private set; }
+        public Port Output { get; protected set; }
 
-        protected BehaviourTreeView TreeView { get; private set; }
-
-        protected SerializedObject SerializedNode => _SerializedNode;
-
-        public NodeView(Node node, BehaviourTreeView treeView) :
-            base("Packages/com.moshitin-encoded.ai.behaviourtree/Editor/Views/NodeView.uxml")
+        public NodeView(string uiFile) : base(uiFile)
         {
-            _Node = node;
-            _SerializedNode = new SerializedObject(node);
-            TreeView = treeView;
-
-            viewDataKey = _SerializedNode.FindProperty("_Guid").stringValue;
-
-            if (node is not RootNode)
-            {
-                BindTitleLabel();
-            }
-
-            base.SetPosition(new Rect
-            {
-                position = _SerializedNode.FindProperty("_Position").vector2Value
-            });
-
-            CreateInputPorts();
-            CreateOutputPorts();
             AddStyleClass();
         }
 
@@ -56,18 +31,6 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         public virtual void RemoveChild(Node child) { }
 
         public virtual void OnMoved() { }
-
-        public override void SetPosition(Rect newPos)
-        {
-            base.SetPosition(newPos);
-
-            _SerializedNode.Update();
-
-            var positionProperty = _SerializedNode.FindProperty("_Position");
-            positionProperty.vector2Value = newPos.position;
-
-            _SerializedNode.ApplyModifiedProperties();
-        }
 
         public override void OnSelected()
         {
@@ -91,6 +54,8 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             _PrevState = Node.State;
         }
 
+        internal virtual void RemoveNullChilds() { }
+
         protected virtual void AddStyleClass() { }
 
         protected virtual void OnUpdateState() { }
@@ -104,50 +69,6 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             else
             {
                 return new List<Node>();
-            }
-        }
-
-        private void BindTitleLabel()
-        {
-            var titleLabel = titleContainer.Q<Label>();
-            titleLabel.bindingPath = "_Title";
-            titleLabel.Bind(_SerializedNode);
-        }
-
-        private void CreateInputPorts()
-        {
-            if (Node is not RootNode)
-            {
-                Input = InstantiatePort(Orientation.Vertical, Direction.Input, Port.Capacity.Single, typeof(bool));
-            }
-
-            if (Input == null)
-            {
-                return;
-            }
-
-            Input.portName = "";
-            inputContainer.Add(Input);
-        }
-
-        private void CreateOutputPorts()
-        {
-            switch (Node)
-            {
-                case CompositeNode:
-                    Output = InstantiatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Multi, typeof(bool));
-                    Output.portName = "Children";
-                    break;
-                case DecoratorNode:
-                case RootNode:
-                    Output = InstantiatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Single, typeof(bool));
-                    Output.portName = "Child";
-                    break;
-            }
-
-            if (Output != null)
-            {
-                outputContainer.Add(Output);
             }
         }
 
@@ -178,5 +99,77 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         private bool WasCompletedThisFrame() => Node.State != _PrevState && _PrevState == NodeState.Running;
 
         private bool IsHideDelayCompleted() => Time.time - Node.LastUpdateTime >= _HideDelaySeconds;
+    }
+
+    internal abstract class NodeView<T> : NodeView where T : Node
+    {
+        [SerializeField] private T _Node;
+        private readonly SerializedObject _SerializedNode;
+
+        public override Node Node => _Node;
+
+        protected T TNode => _Node;
+
+        protected SerializedObject SerializedNode => _SerializedNode;
+
+        protected BehaviourTreeView TreeView { get; private set; }
+
+        public NodeView(T node, BehaviourTreeView treeView) :
+            base("Packages/com.moshitin-encoded.ai.behaviourtree/Editor/Views/NodeView.uxml")
+        {
+            _Node = node;
+            _SerializedNode = new SerializedObject(node);
+            TreeView = treeView;
+
+            viewDataKey = _SerializedNode.FindProperty("_Guid").stringValue;
+
+            if (node is not RootNode)
+            {
+                BindTitleLabel();
+            }
+
+            base.SetPosition(new Rect
+            {
+                position = _SerializedNode.FindProperty("_Position").vector2Value
+            });
+
+            CreateInputPort();
+            CreateOutputPort();
+        }
+
+        public override void SetPosition(Rect newPos)
+        {
+            base.SetPosition(newPos);
+
+            _SerializedNode.Update();
+
+            var positionProperty = _SerializedNode.FindProperty("_Position");
+            positionProperty.vector2Value = newPos.position;
+
+            _SerializedNode.ApplyModifiedProperties();
+        }
+
+        protected virtual void CreateInputPort()
+        {
+            Input = InstantiatePort(Orientation.Vertical, Direction.Input, Port.Capacity.Single, typeof(bool));
+
+            Input.portName = "";
+            inputContainer.Add(Input);
+        }
+
+        protected virtual void CreateOutputPort()
+        {
+            Output = InstantiatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Single, typeof(bool));
+
+            Output.portName = "";
+            outputContainer.Add(Output);
+        }
+
+        private void BindTitleLabel()
+        {
+            var titleLabel = titleContainer.Q<Label>();
+            titleLabel.bindingPath = "_Title";
+            titleLabel.Bind(_SerializedNode);
+        }
     }
 }

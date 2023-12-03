@@ -1,11 +1,12 @@
+using MoshitinEncoded.AI.BehaviourTreeLib;
 using UnityEditor.Experimental.GraphView;
 using Node = MoshitinEncoded.AI.BehaviourTreeLib.Node;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
-    internal class RootNodeView : NodeView
+    internal class RootNodeView : NodeView<RootNode>
     {
-        public RootNodeView(Node node, BehaviourTreeView treeView) : base(node, treeView)
+        public RootNodeView(RootNode node, BehaviourTreeView treeView) : base(node, treeView)
         {
             DisableDelete();
             title = "Root";
@@ -27,6 +28,8 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         {
             AddToClassList("root");
         }
+
+        protected override void CreateInputPort() { }
 
         private void DisableDelete()
         {
