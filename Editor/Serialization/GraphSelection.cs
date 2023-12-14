@@ -7,6 +7,6 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
     internal class GraphSelection
     {
         public Rect SelectionRect;
-        public Dictionary<Node, List<Node>> ChildsDict;
+        public Dictionary<NodeBehaviour, List<NodeBehaviour>> ChildsDict;
     }
 }

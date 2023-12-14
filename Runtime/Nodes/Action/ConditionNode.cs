@@ -6,7 +6,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
     {
         [SerializeField, Tooltip("Whether to invert the condition result.")]
         private bool _Invert;
-        protected override NodeState OnUpdate(BehaviourTreeRunner runner)
+        protected override NodeState Run(BehaviourTreeRunner runner)
         {
             var result = OnEvaluate(runner);
             if (_Invert)

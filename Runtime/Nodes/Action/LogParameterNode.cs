@@ -17,14 +17,14 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
             _Parameter = runner.GetParameterByRef(_ParameterName);
         }
 
-        protected override NodeState OnUpdate(BehaviourTreeRunner runner)
+        protected override NodeState Run(BehaviourTreeRunner runner)
         {
             if (_Parameter == null)
             {
                 return NodeState.Failure;
             }
 
-            Debug.Log(_ParameterName + " Parameter: " + _Parameter.BoxedValue);
+            Debug.Log(_ParameterName + " Parameter: " + _Parameter.BoxedValue, runner);
             return NodeState.Success;
         }
     }

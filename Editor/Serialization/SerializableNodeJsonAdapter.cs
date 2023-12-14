@@ -14,7 +14,7 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
                 DisableRootAdapters = true
             };
 
-            var node = JsonSerialization.FromJson<Node>(serializedNode, nodeParams);
+            var node = JsonSerialization.FromJson<NodeBehaviour>(serializedNode, nodeParams);
             var childGuids = JsonSerialization.FromJson<string[]>(context.SerializedValue.GetValue("ChildGuids"));
 
             return new SerializableNode(node, childGuids);

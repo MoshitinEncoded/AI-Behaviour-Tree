@@ -1,4 +1,4 @@
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    public abstract class ActionNode : Node {}
+    public abstract class ActionNode : NodeBehaviour {}
 }

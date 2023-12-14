@@ -10,7 +10,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         [SerializeField] private string _Message;
         [SerializeField] private LogType _LogType;
 
-        protected override NodeState OnUpdate(BehaviourTreeRunner runner)
+        protected override NodeState Run(BehaviourTreeRunner runner)
         {
             switch (_LogType)
             {

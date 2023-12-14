@@ -2,9 +2,9 @@ using MoshitinEncoded.AI.BehaviourTreeLib;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
-    internal class ActionNodeView : NodeView<ActionNode>
+    internal class ActionNodeView : NodeView
     {
-        public ActionNodeView(ActionNode node, BehaviourTreeView treeView) : base(node, treeView) {}
+        public ActionNodeView(Node node, BehaviourTreeView treeView) : base(node, treeView) {}
 
         protected override void AddStyleClass()
         {

@@ -1,27 +1,12 @@
-using UnityEngine;
 using MoshitinEncoded.AI.BehaviourTreeLib;
 using MoshitinEncoded.GraphTools;
+
+using UnityEngine;
 
 namespace MoshitinEncoded.AI
 {
     public class BehaviourTreeRunner : MonoBehaviour
     {
-        public enum UpdateModeEnum
-        {
-            /// <summary>
-            /// The Behaviour Tree is not updated at all. You must call <i>UpdateBehaviourTree</i> yourself.
-            /// </summary>
-            None,
-            /// <summary>
-            /// The Behaviour Tree is updated each frame.
-            /// </summary>
-            Update,
-            /// <summary>
-            /// The Behaviour Tree is updated each physics frame.
-            /// </summary>
-            FixedUpdate
-        }
-
         /// <summary>
         /// Called after <i>Awake</i> and <i>ChangeBehaviourTree</i> methods. Useful to <b>set</b> parameters.
         /// </summary>
@@ -37,11 +22,10 @@ namespace MoshitinEncoded.AI
         /// </summary>
         public event System.Action Updated;
 
-        [SerializeField]
-        private BehaviourTree _BehaviourTree;
+        [SerializeField] private BehaviourTree _BehaviourTree;
 
-        [SerializeField, Tooltip("How and when the Behaviour Tree will be updated.")]
-        private UpdateModeEnum _UpdateMode = UpdateModeEnum.Update;
+        [Tooltip("How and when the Behaviour Tree will be updated.")]
+        [SerializeField] private TreeUpdateMode _UpdateMode = TreeUpdateMode.Update;
 
         private BehaviourTree _BehaviourTreeInstance;
 
@@ -58,7 +42,7 @@ namespace MoshitinEncoded.AI
         /// <summary>
         /// How the Behaviour Tree will be updated.
         /// </summary>
-        public UpdateModeEnum UpdateMode { get => _UpdateMode; set => _UpdateMode = value; }
+        public TreeUpdateMode UpdateMode { get => _UpdateMode; set => _UpdateMode = value; }
 
         private void Awake()
         {
@@ -67,7 +51,7 @@ namespace MoshitinEncoded.AI
 
         private void FixedUpdate()
         {
-            if (_UpdateMode != UpdateModeEnum.FixedUpdate)
+            if (_UpdateMode != TreeUpdateMode.FixedUpdate)
             {
                 return;
             }
@@ -77,7 +61,7 @@ namespace MoshitinEncoded.AI
 
         private void Update()
         {
-            if (_UpdateMode != UpdateModeEnum.Update)
+            if (_UpdateMode != TreeUpdateMode.Update)
             {
                 return;
             }
@@ -180,5 +164,21 @@ namespace MoshitinEncoded.AI
             _BehaviourTreeInstance = _BehaviourTree.Clone();
             Initialized?.Invoke();
         }
+    }
+
+    public enum TreeUpdateMode
+    {
+        /// <summary>
+        /// The Behaviour Tree is not updated at all. You must call <i>UpdateBehaviourTree</i> yourself.
+        /// </summary>
+        None,
+        /// <summary>
+        /// The Behaviour Tree is updated each frame.
+        /// </summary>
+        Update,
+        /// <summary>
+        /// The Behaviour Tree is updated each fixed update frame.
+        /// </summary>
+        FixedUpdate
     }
 }

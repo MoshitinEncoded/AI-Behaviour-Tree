@@ -4,8 +4,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     public interface IParentNode
     {
-        void AddChild(Node child);
-        List<Node> GetChildren();
+        void AddChild(NodeBehaviour child);
         void ClearChildren();
     }
 }

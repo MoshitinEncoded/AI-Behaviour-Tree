@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    public abstract class Node : ScriptableObject
+    public class Node : ScriptableObject
     {
 
 #if UNITY_EDITOR
@@ -11,77 +11,101 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         [SerializeField, HideInInspector] private Vector2 _Position;
 #endif
 
+        [SerializeField, HideInInspector] private NodeBehaviour _Behaviour;
+        [SerializeField, HideInInspector] private Node[] _Children;
+
         private bool _Initialized = false;
+        private bool _Started = false;
 
-        [HideInInspector] public NodeState State { get; private set; } = NodeState.Running;
-        [HideInInspector] public bool Started { get; private set; } = false;
-        [HideInInspector] public float StartTime { get; private set; } = float.MinValue;
-        [HideInInspector] public float LastUpdateTime { get; private set; } = float.MinValue;
+        public NodeState State { get; private set; } = NodeState.Running;
 
-        public NodeState UpdateNode(BehaviourTreeRunner runner)
+        public float StartTime { get; private set; } = float.MinValue;
+
+        public float LastRunTime { get; private set; } = float.MinValue;
+
+        public NodeBehaviour Behaviour => _Behaviour;
+
+        public Node[] Children => _Children;
+
+        public NodeState RunBehaviour(BehaviourTreeRunner runner)
         {
+            if (!_Behaviour)
+            {
+                return NodeState.Failure;
+            }
+
             if (!_Initialized)
             {
-                Init(runner);
+                Initialize(runner);
             }
 
-            if (!Started)
+            if (!_Started)
             {
-                OnStart(runner);
-                Started = true;
-                StartTime = Time.time;
+                StartBehaviour(runner);
             }
 
-            State = OnUpdate(runner);
+            State = _Behaviour.RunBehaviour(runner);
 
             if (State != NodeState.Running)
             {
-                OnStop(runner);
-                Started = false;
+                StopBehaviour(runner);
             }
 
-            LastUpdateTime = Time.time;
+            LastRunTime = Time.time;
+
             return State;
         }
 
-        internal virtual Node Clone(bool withChildren = true) => Instantiate(this);
-
         /// <summary>
-        /// Called before the first Behaviour Tree update.
+        /// Clones this node along with his hierarchy.
         /// </summary>
-        /// <param name="runner"></param>
-        protected virtual void OnInitialize(BehaviourTreeRunner runner) {}
-
-        /// <summary>
-        /// Called when this node starts running
-        /// </summary>
-        /// <param name="runner"> Runner that started the update. </param>
-        protected virtual void OnStart(BehaviourTreeRunner runner) {}
-
-        /// <summary>
-        /// Called each time this Node is updated.
-        /// </summary>
-        /// <param name="runner"> Runner that started the update. </param>
         /// <returns></returns>
-        protected abstract NodeState OnUpdate(BehaviourTreeRunner runner);
+        internal Node Clone() => Clone(withHierarchy: true);
 
         /// <summary>
-        /// Called when this Node stops running.
+        /// Clones this node with no children.
         /// </summary>
-        /// <param name="runner"> Runner that started the update. </param>
-        protected virtual void OnStop(BehaviourTreeRunner runner) {}
+        /// <returns></returns>
+        internal Node CloneAlone() => Clone(withHierarchy: false);
 
-        private void Init(BehaviourTreeRunner runner)
+        private void Initialize(BehaviourTreeRunner runner)
         {
-            OnInitialize(runner);
+            _Behaviour.Initialize(runner);
             _Initialized = true;
         }
-    }
 
-    public enum NodeState
-    {
-        Running,
-        Failure,
-        Success
+        private void StartBehaviour(BehaviourTreeRunner runner)
+        {
+            _Behaviour.StartBehaviour(runner);
+            _Started = true;
+            StartTime = Time.time;
+        }
+
+        private void StopBehaviour(BehaviourTreeRunner runner)
+        {
+            _Behaviour.StopBehaviour(runner);
+            _Started = false;
+        }
+
+        private Node Clone(bool withHierarchy)
+        {
+            var clone = Instantiate(this);
+
+            clone._Behaviour = _Behaviour.Clone(node: clone);
+            clone._Children = withHierarchy ? CloneChildren() : new Node[0];
+
+            return clone;
+        }
+
+        private Node[] CloneChildren()
+        {
+            var childrenClones = new Node[_Children.Length];
+            for (int i = 0; i < _Children.Length; i++)
+            {
+                childrenClones[i] = _Children[i].Clone();
+            }
+
+            return childrenClones;
+        }
     }
 }

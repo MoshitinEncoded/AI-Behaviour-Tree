@@ -1,10 +1,13 @@
 namespace MoshitinEncoded.AI.BehaviourTreeLib {
     public class CreateNodeMenuAttribute : System.Attribute
     {
-        public string Path;
+        private readonly string _Path;
+        
+        public string Path => _Path;
+
         public CreateNodeMenuAttribute(string path)
         {
-            Path = path;
+            _Path = path;
         }
     }
 }
