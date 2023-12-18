@@ -10,7 +10,7 @@ using UnityEditor.Experimental.GraphView;
 
 using UnityEngine;
 
-using NodeBehaviour = MoshitinEncoded.AI.BehaviourTreeLib.NodeBehaviour;
+using Node = MoshitinEncoded.AI.BehaviourTreeLib.Node;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
@@ -20,7 +20,7 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         {
             UserDefinedAdapters = new List<IJsonAdapter>() { new SerializableNodeJsonAdapter() }
         };
-        
+
         public static string SerializeSelection(Rect selectionRect, IEnumerable<GraphElement> elements)
         {
             var serializableSelection = new SerializableGraphSelection()
@@ -35,17 +35,17 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         public static GraphSelection UnserializeSelection(string json)
         {
             var serializableSelection = FromJson(json);
-            var serializedNodes = serializableSelection.SerializableNodes;
-            var nodeChildsDict = new Dictionary<NodeBehaviour, List<NodeBehaviour>>();
+            var serializableNodes = serializableSelection.SerializableNodes;
+            var nodeChildsDict = new Dictionary<Node, List<Node>>();
 
             // Add node childs
-            foreach (var serializedNode in serializedNodes)
+            foreach (var serializableNode in serializableNodes)
             {
-                nodeChildsDict.Add(serializedNode.Node, new List<NodeBehaviour>());
-                foreach (var childGuid in serializedNode.ChildGuids)
+                nodeChildsDict.Add(serializableNode.Node, new List<Node>());
+                foreach (var childGuid in serializableNode.ChildGuids)
                 {
-                    var childNode = FindChild(serializedNodes, childGuid).Node;
-                    nodeChildsDict[serializedNode.Node].Add(childNode);
+                    var childNode = FindChild(serializableNodes, childGuid).Node;
+                    nodeChildsDict[serializableNode.Node].Add(childNode);
                 }
             }
 
@@ -65,25 +65,22 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
         private static SerializableNode[] GetSerializableNodes(IEnumerable<GraphElement> elements)
         {
-            var nodeChildsDict = new Dictionary<NodeBehaviour, List<string>>();
-            var nodeViews = GetElementsTypeOf<NodeView>(elements);
-            var edges = GetElementsTypeOf<Edge>(elements);
-            foreach (var nodeView in nodeViews)
+            var nodeChildsDict = new Dictionary<Node, List<string>>();
+
+            foreach (var element in elements)
             {
-                /*if (nodeView.Node is RootNode) continue;
-                nodeChildsDict.Add(nodeView.Node, new List<string>());*/
+                if (element is NodeView nodeView)
+                {
+                    nodeChildsDict.Add(nodeView.Node, new List<string>());
+                }
             }
 
-            foreach (var edge in edges)
+            foreach (var element in elements)
             {
-                /*var inputNode = edge.input.node as NodeView;
-                var outputNode = edge.output.node as NodeView;
-                if (!nodeChildsDict.ContainsKey(inputNode.Node) || 
-                    !nodeChildsDict.ContainsKey(outputNode.Node))
-                        continue;
-                
-                var childGuid = new SerializedObject(inputNode.Node).FindProperty("_Guid").stringValue;
-                nodeChildsDict[outputNode.Node].Add(childGuid);*/
+                if (element is Edge edge)
+                {
+                    AddChildIfValid(nodeChildsDict, edge);
+                }
             }
 
             var serializableNodes = CreateSerializableNodes(nodeChildsDict);
@@ -91,14 +88,26 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             return serializableNodes.ToArray();
         }
 
-        private static List<SerializableNode> CreateSerializableNodes(Dictionary<NodeBehaviour, List<string>> nodeChildsDict)
+        private static void AddChildIfValid(Dictionary<Node, List<string>> nodeChildsDict, Edge edge)
+        {
+            var childNode = edge.input.node as NodeView;
+            var parentNode = edge.output.node as NodeView;
+            if (!nodeChildsDict.ContainsKey(childNode.Node) ||
+                !nodeChildsDict.ContainsKey(parentNode.Node))
+                return;
+
+            var childGuid = new SerializedObject(childNode.Node).FindProperty("_Guid").stringValue;
+            nodeChildsDict[parentNode.Node].Add(childGuid);
+        }
+
+        private static List<SerializableNode> CreateSerializableNodes(Dictionary<Node, List<string>> nodeChildsDict)
         {
             var serializableNodes = new List<SerializableNode>();
 
             foreach (var nodeChildsPair in nodeChildsDict)
             {
                 serializableNodes.Add(new SerializableNode(
-                    nodeChildsPair.Key, 
+                    nodeChildsPair.Key,
                     nodeChildsPair.Value.ToArray()
                 ));
             }
@@ -126,5 +135,32 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
         private static SerializableGraphSelection FromJson(string data) =>
             JsonSerialization.FromJson<SerializableGraphSelection>(data, _SerializationParameters);
+    }
+
+    public class GraphElementGrouper
+    {
+        public GraphElementGrouper(IEnumerable<GraphElement> elements)
+        {
+            GroupElements(elements);
+        }
+
+        public void GroupElements(IEnumerable<GraphElement> elements)
+        {
+            foreach (var element in elements)
+            {
+                switch (element)
+                {
+                    case NodeView nodeView:
+                        NodeViews.Add(nodeView);
+                        break;
+                    case Edge edge:
+                        Edges.Add(edge);
+                        break;
+                }
+            }
+        }
+
+        internal List<NodeView> NodeViews = new();
+        public List<Edge> Edges = new();
     }
 }

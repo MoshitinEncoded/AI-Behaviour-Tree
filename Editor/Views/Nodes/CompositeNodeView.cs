@@ -17,17 +17,8 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             AddToClassList("composite");
         }
 
-        protected override void CreateOutputPort()
-        {
-            Output = InstantiatePort(
-                GraphView.Orientation.Vertical,
-                GraphView.Direction.Output,
-                GraphView.Port.Capacity.Multi,
-                typeof(bool));
-
-            Output.portName = "";
-            outputContainer.Add(Output);
-        }
+        protected override PortType GetOutputPortType() =>
+            new(GraphView.Orientation.Vertical, GraphView.Port.Capacity.Multi);
 
         public override void AddChild(Node child)
         {

@@ -123,7 +123,7 @@ public partial class BehaviourTreeView : GraphView
     {
         Undo.RegisterCompleteObjectUndo(node, "Create Node (Behaviour Tree)");
 
-        node.name = node.GetType().Name;
+        node.name = behaviourType.Name;
         node.hideFlags = HideFlags.HideInHierarchy;
 
         var serializedNode = new SerializedObject(node);
@@ -199,32 +199,10 @@ public partial class BehaviourTreeView : GraphView
     /// <returns> The selection serialized as JSON. </returns>
     private string OnSerializeElements(IEnumerable<GraphElement> elements)
     {
-        elements = FilterOutRootNode(elements);
         var nodeViews = elements.Where(element => element is NodeView);
         var selectionRect = CalculateRectToFitElements(nodeViews);
 
         return GraphSerializer.SerializeSelection(selectionRect, elements);
-    }
-
-    private IEnumerable<GraphElement> FilterOutRootNode(IEnumerable<GraphElement> elements)
-    {
-        var newElements = new List<GraphElement>();
-        foreach (var element in elements)
-        {
-            if (element is NodeView nodeView && nodeView.Node.Behaviour is not RootNode)
-            {
-                newElements.Add(nodeView);
-            }
-            else if (element is Edge edge &&
-                elements.Contains(edge.input.node) &&
-                elements.Contains(edge.output.node) &&
-                (edge.output.node as NodeView).Node.Behaviour is not RootNode)
-            {
-                newElements.Add(edge);
-            }
-        }
-
-        return newElements;
     }
 
     private static Rect CalculateRectToFitElements(IEnumerable<GraphElement> elements)
@@ -250,29 +228,55 @@ public partial class BehaviourTreeView : GraphView
     private void OnPasteElements(string operationName, string data)
     {
         var selection = GraphSerializer.UnserializeSelection(data);
-        var topParents = GetTopParents(selection.ChildsDict);
 
         ClearSelection();
 
-        foreach (var parent in topParents)
+        foreach (var childDict in selection.ChildsDict)
         {
-            PasteNodeHierarchy(
-                operationName: operationName,
-                selectionRect: selection.SelectionRect,
-                childsDict: selection.ChildsDict,
-                node: parent
-            );
+            var node = childDict.Key;
+            var behaviour = node.Behaviour;
+
+            AddNodeToAsset(node);
+            SetupPasteNode(operationName, selection.SelectionRect, node);
+
+            AddBehaviourToAsset(behaviour);
+
+            Undo.RegisterCompleteObjectUndo(behaviour, "Paste Node (BehaviourTree)");
+
+            behaviour.name = behaviour.GetType().Name;
+            behaviour.hideFlags = HideFlags.HideInHierarchy;
+
+            var serializedBehaviour = new SerializedObject(behaviour);
+            serializedBehaviour.FindProperty("_Node").objectReferenceValue = node;
+            serializedBehaviour.ApplyModifiedProperties();
+
+            AddNodeToArray(node);
+            CreateNodeView(node);
+        }
+
+        foreach (var childDict in selection.ChildsDict)
+        {
+            var parentView = GetNodeView(childDict.Key);
+            AddToSelection(parentView);
+
+            foreach (var child in childDict.Value)
+            {
+                parentView.AddChild(child);
+                var childView = GetNodeView(child);
+                var edge = parentView.Output.ConnectTo(childView.Input);
+                AddElement(edge);
+                AddToSelection(edge);
+            }
         }
     }
 
-    private NodeView PasteNodeHierarchy(string operationName, Rect selectionRect, Dictionary<NodeBehaviour, List<NodeBehaviour>> childsDict, NodeBehaviour node)
+    private void SetupPasteNode(string operationName, Rect selectionRect, Node node)
     {
-        var isParentNode = node is IParentNode;
-        var childNodes = childsDict[node];
+        Undo.RegisterCompleteObjectUndo(node, "Paste Node (BehaviourTree)");
 
-        AddBehaviourToAsset(node);
+        node.name = "Node";
+        node.hideFlags = HideFlags.HideInHierarchy;
 
-        // Set Guid and Position
         var serializedNode = new SerializedObject(node);
         var positionProperty = serializedNode.FindProperty("_Position");
 
@@ -286,55 +290,8 @@ public partial class BehaviourTreeView : GraphView
         }
 
         serializedNode.FindProperty("_Guid").stringValue = GUID.Generate().ToString();
+        serializedNode.FindProperty("_Children").ClearArray();
         serializedNode.ApplyModifiedProperties();
-
-        //AddNodeToArray(node);
-
-        // Paste and get child nodes
-        var nodeView = GetNodeView(node.Node);
-        var childNodeViews = new List<NodeView>();
-        foreach (var childNode in childNodes)
-        {
-            childNodeViews.Add(PasteNodeHierarchy(operationName, selectionRect, childsDict, childNode));
-        }
-
-        Undo.RecordObject(node, "Create Node (Behaviour Tree)");
-        node.name = node.GetType().Name;
-
-        if (isParentNode)
-        {
-            var parentNode = node as IParentNode;
-            parentNode.ClearChildren();
-            foreach (var childNode in childNodes)
-            {
-                parentNode.AddChild(childNode);
-            }
-
-            foreach (var childNodeView in childNodeViews)
-            {
-                var edge = nodeView.Output.ConnectTo(childNodeView.Input);
-                AddElement(edge);
-                AddToSelection(edge);
-            }
-        }
-
-        AddToSelection(nodeView);
-
-        return nodeView;
-    }
-
-    private IEnumerable<NodeBehaviour> GetTopParents(Dictionary<NodeBehaviour, List<NodeBehaviour>> nodeChildsDict)
-    {
-        var topParents = nodeChildsDict.Keys.ToList();
-        foreach (var nodeChildsPair in nodeChildsDict)
-        {
-            foreach (var childNode in nodeChildsPair.Value)
-            {
-                topParents.Remove(childNode);
-            }
-        }
-
-        return topParents;
     }
 
     private void OnUndoRedo()
@@ -467,7 +424,12 @@ public partial class BehaviourTreeView : GraphView
         if (nodeRemoved)
         {
             _SerializedTree.ApplyModifiedProperties();
-            Undo.DestroyObjectImmediate(node.Behaviour);
+
+            if (node.Behaviour)
+            {
+                Undo.DestroyObjectImmediate(node.Behaviour);
+            }
+
             Undo.DestroyObjectImmediate(node);
         }
     }
@@ -492,6 +454,9 @@ public partial class BehaviourTreeView : GraphView
                 break;
             case ActionNode:
                 nodeView = new ActionNodeView(node, this);
+                break;
+            case null:
+                nodeView = new MissingNodeView(node, this);
                 break;
         }
 

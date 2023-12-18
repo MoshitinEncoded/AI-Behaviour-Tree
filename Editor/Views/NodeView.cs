@@ -1,3 +1,4 @@
+using System;
 using MoshitinEncoded.AI.BehaviourTreeLib;
 
 using UnityEditor;
@@ -32,6 +33,10 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
         protected BehaviourTreeView TreeView { get; private set; }
 
+        protected virtual bool ShowInputPort { get; } = true;
+
+        protected virtual bool ShowOutputPort { get; } = true;
+
         public NodeView(Node node, BehaviourTreeView treeView) : base("Packages/com.moshitin-encoded.ai.behaviourtree/Editor/Views/NodeView.uxml")
         {
             _Node = node;
@@ -50,8 +55,8 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
                 position = _SerializedNode.FindProperty("_Position").vector2Value
             });
 
-            CreateInputPort();
-            CreateOutputPort();
+            AddInputPort();
+            AddOutputPort();
         }
 
         public virtual void AddChild(Node child) { }
@@ -80,7 +85,6 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
         internal void UpdateState()
         {
-            Debug.Log(Node.name);
             if (IsHideDelayCompleted())
             {
                 HideStates();
@@ -97,21 +101,47 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
         protected virtual void AddStyleClass() { }
 
-        protected virtual void CreateInputPort()
+        private void AddInputPort()
         {
-            Input = InstantiatePort(Orientation.Vertical, Direction.Input, Port.Capacity.Single, typeof(bool));
+            if (!ShowInputPort)
+            {
+                return;
+            }
+
+            Input = CreateInputPort();
 
             Input.portName = "";
             inputContainer.Add(Input);
         }
 
-        protected virtual void CreateOutputPort()
+        private Port CreateInputPort()
         {
-            Output = InstantiatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Single, typeof(bool));
+            var portType = GetInputPortType();
+            return InstantiatePort(portType.Orientation, Direction.Input, portType.Capacity, typeof(bool));
+        }
+
+        protected virtual PortType GetInputPortType() => new(Orientation.Vertical, Port.Capacity.Single);
+
+        private void AddOutputPort()
+        {
+            if (!ShowOutputPort)
+            {
+                return;
+            }
+
+            Output = CreateOutputPort();
 
             Output.portName = "";
             outputContainer.Add(Output);
         }
+
+        private Port CreateOutputPort()
+        {
+            var portType = GetOutputPortType();
+            return InstantiatePort(portType.Orientation, Direction.Output, portType.Capacity, typeof(bool));
+        }
+
+        protected virtual PortType GetOutputPortType() => new(Orientation.Vertical, Port.Capacity.Single);
 
         private void BindTitleLabel()
         {
@@ -147,5 +177,17 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         private bool WasCompletedThisFrame() => Node.State != _PrevState && _PrevState == NodeState.Running;
 
         private bool IsHideDelayCompleted() => Time.time - Node.LastRunTime >= _HideDelaySeconds;
+
+        protected struct PortType
+        {
+            public PortType(Orientation orientation, Port.Capacity capacity)
+            {
+                Orientation = orientation;
+                Capacity = capacity;
+            }
+
+            public Orientation Orientation;
+            public Port.Capacity Capacity;
+        }
     }
 }

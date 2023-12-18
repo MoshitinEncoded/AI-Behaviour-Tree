@@ -1,5 +1,5 @@
-using MoshitinEncoded.AI.BehaviourTreeLib;
-using MoshitinEncoded.Editor.AI.BehaviourTreeLib;
+using System.Collections.Generic;
+
 using Unity.Serialization.Json;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
@@ -8,37 +8,24 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
     {
         public SerializableNode Deserialize(in JsonDeserializationContext<SerializableNode> context)
         {
-            var serializedNode = context.SerializedValue.GetValue("Node");
-            var nodeParams = new JsonSerializationParameters()
+            var parameters = new JsonSerializationParameters()
             {
-                DisableRootAdapters = true
+                DisableRootAdapters = true,
+                UserDefinedAdapters = new List<IJsonAdapter>() { new NodeJsonAdapter() }
             };
 
-            var node = JsonSerialization.FromJson<NodeBehaviour>(serializedNode, nodeParams);
-            var childGuids = JsonSerialization.FromJson<string[]>(context.SerializedValue.GetValue("ChildGuids"));
-
-            return new SerializableNode(node, childGuids);
+            return JsonSerialization.FromJson<SerializableNode>(context.SerializedValue, parameters);
         }
 
         public void Serialize(in JsonSerializationContext<SerializableNode> context, SerializableNode value)
         {
-            context.Writer.WriteBeginObject();
-
-            var nodeParams = new JsonSerializationParameters()
+            var parameters = new JsonSerializationParameters()
             {
-                DisableRootAdapters = true
+                DisableRootAdapters = true,
+                UserDefinedAdapters = new List<IJsonAdapter>() { new NodeJsonAdapter() }
             };
 
-            context.Writer.WriteKeyValueLiteral("Node", JsonSerialization.ToJson(value.Node, nodeParams));
-
-            context.Writer.WriteBeginArray("ChildGuids");
-            foreach (var nodeGuid in value.ChildGuids)
-            {
-                context.Writer.WriteValue(nodeGuid);
-            }
-            context.Writer.WriteEndArray();
-
-            context.Writer.WriteEndObject();
+            context.Writer.WriteValueLiteral(JsonSerialization.ToJson(value, parameters));
         }
     }
 }

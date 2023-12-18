@@ -104,6 +104,20 @@ Label {
     background-color: rgb(221, 129, 39);
 }
 
+.missing #input {
+    background-color: rgb(128, 128, 128);
+}
+
+.missing #title-label {
+    color: rgb(255, 0, 0);
+}
+
+.missing #missing-label {
+    color: rgb(255, 0, 0);
+    font-size: 12px;
+    display: flex;
+}
+
 #title-label {
     -unity-font-style: bold;
     font-size: 14px;
@@ -135,4 +149,8 @@ Label {
 
 .failure #node-state {
     background-color: rgba(255, 25, 25, 0.65);
+}
+
+#missing-label {
+    display: none;
 }

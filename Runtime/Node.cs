@@ -31,7 +31,11 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         {
             if (!_Behaviour)
             {
-                return NodeState.Failure;
+                Debug.LogError(
+                    $"BehaviourTree Error: missing node inside \"{runner.BehaviourTree.name}\" BehaviourTree.", runner);
+                State = NodeState.Failure;
+                LastRunTime = Time.time;
+                return State;
             }
 
             if (!_Initialized)
@@ -91,7 +95,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         {
             var clone = Instantiate(this);
 
-            clone._Behaviour = _Behaviour.Clone(node: clone);
+            clone._Behaviour = _Behaviour ? _Behaviour.Clone(node: clone) : null;
             clone._Children = withHierarchy ? CloneChildren() : new Node[0];
 
             return clone;

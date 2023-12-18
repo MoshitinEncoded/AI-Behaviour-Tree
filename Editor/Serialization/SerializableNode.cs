@@ -7,13 +7,13 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
     {
         public SerializableNode() {}
 
-        public SerializableNode(NodeBehaviour node, string[] childGuids)
+        public SerializableNode(Node node, string[] childGuids)
         {
             Node = node;
             ChildGuids = childGuids;
         }
 
-        public NodeBehaviour Node;
+        public Node Node;
         public string[] ChildGuids;
     }
 }
