@@ -452,8 +452,8 @@ public partial class BehaviourTreeView : GraphView
             case ConditionNode:
                 nodeView = new ConditionNodeView(node, this);
                 break;
-            case ActionNode:
-                nodeView = new ActionNodeView(node, this);
+            case TaskNode:
+                nodeView = new TaskNodeView(node, this);
                 break;
             case null:
                 nodeView = new MissingNodeView(node, this);

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    public abstract class ConditionNode : ActionNode
+    public abstract class ConditionNode : TaskNode
     {
         [SerializeField, Tooltip("Whether to invert the condition result.")]
         private bool _Invert;

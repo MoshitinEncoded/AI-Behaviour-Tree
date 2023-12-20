@@ -88,7 +88,7 @@ Label {
     min-height: 24px;
 }
 
-.action #input {
+.task #input {
     background-color: rgb(221, 61, 51);
 }
 

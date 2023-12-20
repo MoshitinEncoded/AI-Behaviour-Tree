@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateNodeMenu("Action/Wait")]
-    public class WaitNode : ActionNode
+    [CreateNodeMenu("Task/Wait")]
+    public class WaitNode : TaskNode
     {
         [Space]
         [Tooltip("Time in seconds to wait.")]

@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateNodeMenu(path: "Action/Debug/Log Parameter")]
-    public class LogParameterNode : ActionNode
+    [CreateNodeMenu("Task/Debug/Log Parameter")]
+    public class LogParameterNode : TaskNode
     {
         [Space]
         [SerializeField] private string _ParameterName;

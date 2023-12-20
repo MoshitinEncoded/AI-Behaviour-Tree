@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateNodeMenu("Action/Debug/Log Message")]
-    public class LogMessageNode : ActionNode
+    [CreateNodeMenu("Task/Debug/Log Message")]
+    public class LogMessageNode : TaskNode
     {
         [Space]
         [Tooltip("Message to print on the console.")]
