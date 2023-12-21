@@ -71,12 +71,6 @@
     min-width: 150px;
 }
 
-Label {
-    padding-left: 2px;
-    padding-right: 2px;
-    -unity-text-align: upper-center;
-}
-
 #divider {
     min-height: 1px;
     background-color: rgb(72, 72, 72);
@@ -122,6 +116,10 @@ Label {
     -unity-font-style: bold;
     font-size: 14px;
     margin-top: 5px;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 #node-state {
@@ -153,4 +151,37 @@ Label {
 
 #missing-label {
     display: none;
+}
+
+#unity-text-input {
+    padding-left: 2px;
+    padding-right: 0;
+    -unity-font-style: bold;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    -unity-text-align: upper-center;
+    font-size: 14px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+#title-text-field {
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 4px;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+#title-text-field Label {
+    display: none;
+}
+
+Label {
+    -unity-text-align: upper-center;
 }

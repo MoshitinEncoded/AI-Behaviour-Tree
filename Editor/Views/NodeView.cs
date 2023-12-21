@@ -20,6 +20,8 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         private readonly SerializedObject _SerializedNode;
         private readonly SerializedProperty _ChildrenProperty;
         private NodeState _PrevState = NodeState.Running;
+        private readonly Label _TitleLabel;
+        private readonly TextField _TitleTextField;
 
         public Node Node => _Node;
 
@@ -48,8 +50,6 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
             viewDataKey = _SerializedNode.FindProperty("_Guid").stringValue;
 
-            BindTitleLabel();
-
             base.SetPosition(new Rect
             {
                 position = _SerializedNode.FindProperty("_Position").vector2Value
@@ -57,6 +57,50 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
             AddInputPort();
             AddOutputPort();
+
+            _TitleLabel = this.Q<Label>("title-label");
+            _TitleTextField = this.Q<TextField>("title-text-field");
+            _TitleTextField.Q<Label>().style.display = DisplayStyle.None;
+            _TitleTextField.style.display = DisplayStyle.None;
+            var inputTextField = _TitleTextField.Q(TextInputBaseField<string>.textInputUssName);
+            inputTextField.RegisterCallback<FocusOutEvent>(delegate { OnTitleEditFinished(); }, TrickleDown.TrickleDown);
+
+            title = _SerializedNode.FindProperty("_Title").stringValue;
+
+            capabilities |= Capabilities.Renamable;
+        }
+
+        private void OnTitleEditFinished()
+        {
+            if (title != _TitleTextField.text)
+            {
+                title = _TitleTextField.text;
+
+                _SerializedNode.Update();
+                _SerializedNode.FindProperty("_Title").stringValue = title;
+                _SerializedNode.ApplyModifiedProperties();
+            }
+
+            _TitleLabel.style.display = DisplayStyle.Flex;
+            _TitleTextField.style.display = DisplayStyle.None;
+        }
+
+        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+        {
+            base.BuildContextualMenu(evt);
+            evt.menu.AppendAction("Rename", (evt) => OpenTextEditor(), IsRenamable() ? DropdownMenuAction.AlwaysEnabled : DropdownMenuAction.AlwaysDisabled);
+        }
+
+        private void OpenTextEditor()
+        {
+            SerializedNode.Update();
+            var title = SerializedNode.FindProperty("_Title").stringValue;
+
+            _TitleTextField.SetValueWithoutNotify(title);
+            _TitleTextField.style.display = DisplayStyle.Flex;
+            _TitleLabel.style.display = DisplayStyle.None;
+            _TitleTextField.Q(TextInputBaseField<string>.textInputUssName).Focus();
+            _TitleTextField.SelectAll();
         }
 
         public virtual void AddChild(Node child) { }
@@ -142,13 +186,6 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         }
 
         protected virtual PortType GetOutputPortType() => new(Orientation.Vertical, Port.Capacity.Single);
-
-        private void BindTitleLabel()
-        {
-            var titleLabel = titleContainer.Q<Label>();
-            titleLabel.bindingPath = "_Title";
-            titleLabel.Bind(_SerializedNode);
-        }
 
         private void ShowState(NodeState nodeState)
         {

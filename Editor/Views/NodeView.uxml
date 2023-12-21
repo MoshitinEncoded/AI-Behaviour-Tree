@@ -8,8 +8,9 @@
                 <ui:VisualElement name="divider" class="vertical" />
                 <ui:VisualElement name="title">
                     <ui:Label name="title-label" text="RootNode" class="unity-text-element unity-label" />
-                    <ui:Label name="missing-label" text="Missing Node" class="unity-text-element unity-label" />
-                    <ui:VisualElement name="title-button-container">
+                    <ui:Label name="missing-label" text="Missing Node" class="unity-text-element unity-label" style="display: none;" />
+                    <ui:TextField picking-mode="Ignore" label="Text Field" value="filler text" name="title-text-field" style="display: none;" />
+                    <ui:VisualElement name="title-button-container" style="display: none;">
                         <ui:VisualElement name="collapse-button">
                             <ui:VisualElement name="icon" />
                         </ui:VisualElement>
