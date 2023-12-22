@@ -1,0 +1,16 @@
+#title-field {
+    margin-top: 6px;
+}
+
+#title-field Label {
+    display: none;
+}
+
+#title-field #unity-text-input {
+    font-size: 16px;
+    -unity-font-style: bold;
+}
+
+.behaviour-inspector {
+    margin-top: 10px;
+}

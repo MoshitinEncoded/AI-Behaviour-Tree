@@ -120,6 +120,7 @@
     padding-right: 2px;
     margin-left: 0;
     margin-right: 0;
+    margin-bottom: 1px;
 }
 
 #node-state {
@@ -157,9 +158,9 @@
     padding-left: 2px;
     padding-right: 0;
     -unity-font-style: bold;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 4px;
     margin-bottom: 0;
     -unity-text-align: upper-center;
     font-size: 14px;
@@ -168,9 +169,9 @@
 }
 
 #title-text-field {
-    margin-left: 4px;
-    margin-right: 4px;
-    margin-top: 4px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;

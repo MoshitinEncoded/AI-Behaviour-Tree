@@ -46,6 +46,9 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             _ChildrenProperty = _SerializedNode.FindProperty("_Children");
             TreeView = treeView;
 
+            _TitleLabel = this.Q<Label>("title-label");
+            _TitleTextField = this.Q<TextField>("title-text-field");
+
             AddStyleClass();
 
             viewDataKey = _SerializedNode.FindProperty("_Guid").stringValue;
@@ -58,16 +61,10 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             AddInputPort();
             AddOutputPort();
 
-            _TitleLabel = this.Q<Label>("title-label");
-            _TitleTextField = this.Q<TextField>("title-text-field");
-            _TitleTextField.Q<Label>().style.display = DisplayStyle.None;
-            _TitleTextField.style.display = DisplayStyle.None;
-            var inputTextField = _TitleTextField.Q(TextInputBaseField<string>.textInputUssName);
-            inputTextField.RegisterCallback<FocusOutEvent>(delegate { OnTitleEditFinished(); }, TrickleDown.TrickleDown);
-
-            title = _SerializedNode.FindProperty("_Title").stringValue;
-
             capabilities |= Capabilities.Renamable;
+
+            BindTitleLabel();
+            SetupTitleTextField();
         }
 
         private void OnTitleEditFinished()
@@ -112,7 +109,7 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         public override void OnSelected()
         {
             base.OnSelected();
-            Selection.activeObject = Node.Behaviour;
+            Selection.activeObject = Node;
         }
 
         public override void SetPosition(Rect newPos)
@@ -186,6 +183,21 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         }
 
         protected virtual PortType GetOutputPortType() => new(Orientation.Vertical, Port.Capacity.Single);
+
+        private void BindTitleLabel()
+        {
+            _TitleLabel.bindingPath = "_Title";
+            _TitleLabel.Bind(_SerializedNode);
+        }
+
+        private void SetupTitleTextField()
+        {
+            _TitleTextField.Q<Label>().style.display = DisplayStyle.None;
+            _TitleTextField.style.display = DisplayStyle.None;
+
+            var inputTextField = _TitleTextField.Q(TextInputBaseField<string>.textInputUssName);
+            inputTextField.RegisterCallback<FocusOutEvent>(delegate { OnTitleEditFinished(); }, TrickleDown.TrickleDown);
+        }
 
         private void ShowState(NodeState nodeState)
         {
