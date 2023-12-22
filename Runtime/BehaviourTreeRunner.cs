@@ -1,3 +1,4 @@
+using System;
 using MoshitinEncoded.AI.BehaviourTreeLib;
 using MoshitinEncoded.GraphTools;
 
@@ -84,6 +85,14 @@ namespace MoshitinEncoded.AI
         }
 
         /// <summary>
+        /// Restarts the Behaviour Tree completely. This action causes a new initialization.
+        /// </summary>
+        public void RestartBehaviourTree()
+        {
+            InitializeBehaviourTree();
+        }
+
+        /// <summary>
         /// Changes the active Behaviour Tree. This action causes a new initialization.
         /// </summary>
         /// <param name="behaviourTree"></param>
@@ -127,13 +136,16 @@ namespace MoshitinEncoded.AI
         /// <returns> The parameter if found, <b>null</b> otherwise. </returns>
         public BlackboardParameter GetParameterByRef(string name)
         {
+            if (_BehaviourTreeInstance == null)
+            {
+                LogMissingBehaviourTreeError();
+                return null;
+            }
+            
             var parameter = _BehaviourTreeInstance.GetParameter(name);
-
             if (parameter == null)
             {
-                Debug.LogError(
-                    message: $"Parameter \"{name}\" doesn't exist in {_BehaviourTree.name} Behaviour Tree.",
-                    context: gameObject);
+                LogMissingParameterWarning();
             }
 
             return parameter;
@@ -147,13 +159,16 @@ namespace MoshitinEncoded.AI
         /// <returns> The parameter if found, <b>null</b> otherwise. </returns>
         public BlackboardParameter<T> GetParameterByRef<T>(string name)
         {
+            if (_BehaviourTreeInstance == null)
+            {
+                LogMissingBehaviourTreeError();
+                return null;
+            }
+            
             var parameter = _BehaviourTreeInstance.GetParameter<T>(name);
-
             if (parameter == null)
             {
-                Debug.LogError(
-                    message: $"Parameter \"{name}: {typeof(T).Name}\" doesn't exist in {_BehaviourTree.name} Behaviour Tree.",
-                    context: gameObject);
+                LogMissingParameterWarning(typeof(T));
             }
 
             return parameter;
@@ -161,8 +176,25 @@ namespace MoshitinEncoded.AI
 
         private void InitializeBehaviourTree()
         {
+            if (_BehaviourTree == null) return;
+
             _BehaviourTreeInstance = _BehaviourTree.Clone();
             Initialized?.Invoke();
+        }
+
+        private void LogMissingBehaviourTreeError()
+        {
+            Debug.LogError(
+                message: $"BehaviourTree Error: there is no Behaviour Tree to get the parameter from.",
+                context: gameObject);
+        }
+
+        private void LogMissingParameterWarning(Type parameterType = null)
+        {
+            var typeText = parameterType != null ? $": {parameterType.Name}" : "";
+            Debug.LogWarning(
+                message: $"BehaviourTree Warning: parameter \"{name}{typeText}\" doesn't exist in {_BehaviourTree.name} Behaviour Tree.",
+                context: gameObject);
         }
     }
 
