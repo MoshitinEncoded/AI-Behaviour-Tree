@@ -12,15 +12,12 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         {
             DisableDelete();
             DisableCopy();
-            DisableRename();
             title = "Root";
         }
 
         private void DisableDelete() => capabilities &= ~Capabilities.Deletable;
 
         private void DisableCopy() => capabilities &= ~Capabilities.Copiable;
-
-        private void DisableRename() => capabilities &= ~Capabilities.Renamable;
 
         protected override void AddStyleClass()
         {
