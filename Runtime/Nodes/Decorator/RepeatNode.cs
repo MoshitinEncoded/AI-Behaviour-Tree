@@ -1,6 +1,7 @@
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateNodeMenu("Decorator/Repeater", "Runs its child forever.")]
+    [CreateNodeMenu("Decorator/Repeater")]
+    [NodeDescription("Runs its child forever.")]
     public class RepeatNode : DecoratorNode
     {
         protected override NodeState Run(BehaviourTreeRunner runner)

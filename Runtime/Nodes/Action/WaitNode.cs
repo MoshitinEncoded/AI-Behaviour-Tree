@@ -2,7 +2,8 @@ using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateNodeMenu("Task/Wait", "Waits N seconds before returning success.")]
+    [CreateNodeMenu("Task/Wait")]
+    [NodeDescription("Waits N seconds before returning success.")]
     public class WaitNode : TaskNode
     {
         [Space]

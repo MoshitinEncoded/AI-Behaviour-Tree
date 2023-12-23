@@ -1,4 +1,5 @@
 using System.Reflection;
+
 using MoshitinEncoded.AI.BehaviourTreeLib;
 
 using UnityEditor;
@@ -29,11 +30,10 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
                 return root;
             }
 
-            var attribute = node.Behaviour.GetType().GetCustomAttribute<CreateNodeMenuAttribute>();
+            var attribute = node.Behaviour.GetType().GetCustomAttribute<NodeDescriptionAttribute>();
             if (attribute != null && attribute.Description != "")
             {
                 var box = new Box();
-                //box.ClearClassList();
                 box.AddToClassList("description-box");
                 box.Add(new Label(attribute.Description));
                 root.Add(box);

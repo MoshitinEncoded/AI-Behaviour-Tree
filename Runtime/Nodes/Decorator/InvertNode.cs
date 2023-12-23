@@ -1,6 +1,7 @@
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateNodeMenu("Decorator/Invert", "Returns the inverted state of its child (except \"running\").")]
+    [CreateNodeMenu("Decorator/Invert")]
+    [NodeDescription("Returns the inverted state of its child (except \"running\").")]
     public class InvertNode : DecoratorNode
     {
         protected override NodeState Run(BehaviourTreeRunner runner)
