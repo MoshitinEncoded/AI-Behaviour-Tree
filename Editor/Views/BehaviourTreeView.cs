@@ -449,9 +449,6 @@ public partial class BehaviourTreeView : GraphView
             case CompositeNode:
                 nodeView = new CompositeNodeView(node, this);
                 break;
-            case ConditionNode:
-                nodeView = new ConditionNodeView(node, this);
-                break;
             case TaskNode:
                 nodeView = new TaskNodeView(node, this);
                 break;
