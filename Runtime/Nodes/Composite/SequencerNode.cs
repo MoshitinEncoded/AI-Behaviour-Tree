@@ -3,7 +3,7 @@ using UnityEngine;
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [CreateNodeMenu("Composite/Sequencer")]
-    [NodeDescription("Runs its children until one fails or all succeeds.")]
+    [Tooltip("Runs its children until one fails or all succeeds.")]
     public class SequencerNode : CompositeNode
     {
         [SerializeField, Tooltip("Whether to update all nodes in the same frame.")]

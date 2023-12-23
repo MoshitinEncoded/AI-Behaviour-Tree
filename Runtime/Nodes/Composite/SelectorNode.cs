@@ -1,7 +1,9 @@
+using UnityEngine;
+
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [CreateNodeMenu("Composite/Selector")]
-    [NodeDescription("Runs its children until one succeeds or all fails.")]
+    [Tooltip("Runs its children until one succeeds or all fails.")]
     public class SelectorNode : CompositeNode
     {
         protected override NodeState Run(BehaviourTreeRunner runner)

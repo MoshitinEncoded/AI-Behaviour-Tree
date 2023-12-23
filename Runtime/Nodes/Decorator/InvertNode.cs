@@ -1,7 +1,9 @@
+using UnityEngine;
+
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [CreateNodeMenu("Decorator/Invert")]
-    [NodeDescription("Returns the inverted state of its child (except \"running\").")]
+    [Tooltip("Returns the inverted state of its child (except \"running\").")]
     public class InvertNode : DecoratorNode
     {
         protected override NodeState Run(BehaviourTreeRunner runner)

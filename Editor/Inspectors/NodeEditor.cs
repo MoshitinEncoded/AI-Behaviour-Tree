@@ -30,12 +30,12 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
                 return root;
             }
 
-            var attribute = node.Behaviour.GetType().GetCustomAttribute<NodeDescriptionAttribute>();
-            if (attribute != null && attribute.Description != "")
+            var attribute = node.Behaviour.GetType().GetCustomAttribute<TooltipAttribute>();
+            if (attribute != null && attribute.tooltip != "")
             {
                 var box = new Box();
                 box.AddToClassList("description-box");
-                box.Add(new Label(attribute.Description));
+                box.Add(new Label(attribute.tooltip));
                 root.Add(box);
             }
 
