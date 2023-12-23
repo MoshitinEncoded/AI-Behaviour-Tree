@@ -14,3 +14,29 @@
 .behaviour-inspector {
     margin-top: 10px;
 }
+
+.description-box {
+    margin-top: 6px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-top-color: var(--unity-colors-helpbox-border);
+    border-bottom-color: var(--unity-colors-helpbox-border);
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    margin-left: 1px;
+    left: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 1px;
+    border-right-color: var(--unity-colors-helpbox-border);
+    border-left-color: var(--unity-colors-helpbox-border);
+}
+
+.description-box Label {
+    white-space: normal;
+    text-overflow: clip;
+}

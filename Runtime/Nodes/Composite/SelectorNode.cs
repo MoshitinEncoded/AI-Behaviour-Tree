@@ -1,6 +1,6 @@
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateNodeMenu("Composite/Selector")]
+    [CreateNodeMenu("Composite/Selector", "Runs its children until one succeeds or all fails.")]
     public class SelectorNode : CompositeNode
     {
         protected override NodeState Run(BehaviourTreeRunner runner)

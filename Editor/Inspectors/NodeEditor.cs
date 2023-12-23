@@ -1,3 +1,4 @@
+using System.Reflection;
 using MoshitinEncoded.AI.BehaviourTreeLib;
 
 using UnityEditor;
@@ -22,6 +23,22 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             titleField.bindingPath = "_Title";
 
             var node = target as Node;
+
+            if (node.Behaviour == null)
+            {
+                return root;
+            }
+
+            var attribute = node.Behaviour.GetType().GetCustomAttribute<CreateNodeMenuAttribute>();
+            if (attribute != null && attribute.Description != "")
+            {
+                var box = new Box();
+                //box.ClearClassList();
+                box.AddToClassList("description-box");
+                box.Add(new Label(attribute.Description));
+                root.Add(box);
+            }
+
             var behaviourInspector = new InspectorElement(node.Behaviour);
             behaviourInspector.ClearClassList();
             behaviourInspector.AddToClassList("behaviour-inspector");

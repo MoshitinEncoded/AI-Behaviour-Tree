@@ -1,7 +1,3 @@
-
-
-using UnityEngine;
-
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     public class RootNode : NodeBehaviour

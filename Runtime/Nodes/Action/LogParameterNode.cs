@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateNodeMenu("Task/Debug/Log Parameter")]
+    [CreateNodeMenu("Task/Debug/Log Parameter", "Logs a parameter value to the Unity console.")]
     public class LogParameterNode : TaskNode
     {
         [Space]
