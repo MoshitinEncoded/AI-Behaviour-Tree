@@ -1,5 +1,6 @@
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
+    [NodeDescription("The root of all evil... of your behaviour tree.")]
     public class RootNode : NodeBehaviour
     {
         public Node Child => Node.Children.Length > 0 ? Node.Children[0] : null;
