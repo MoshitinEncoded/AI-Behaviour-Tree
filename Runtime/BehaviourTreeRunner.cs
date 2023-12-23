@@ -70,18 +70,23 @@ namespace MoshitinEncoded.AI
             UpdateBehaviourTree();
         }
 
-        public void UpdateBehaviourTree()
+        /// <summary>
+        /// Updates the Behaviour Tree.
+        /// </summary>
+        /// <returns> The state of the Behaviour Tree. </returns>
+        public NodeState UpdateBehaviourTree()
         {
             if (_BehaviourTreeInstance == null)
             {
-                return;
+                return NodeState.Failure;
             }
 
             WillUpdate?.Invoke();
 
-            _BehaviourTreeInstance.UpdateBehaviour(runner: this);
+            var state = _BehaviourTreeInstance.UpdateBehaviour(runner: this);
 
             Updated?.Invoke();
+            return state;
         }
 
         /// <summary>
