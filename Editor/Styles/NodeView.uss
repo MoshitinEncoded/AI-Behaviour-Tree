@@ -150,10 +150,6 @@
     background-color: rgba(255, 25, 25, 0.65);
 }
 
-#missing-label {
-    display: none;
-}
-
 #unity-text-input {
     padding-left: 2px;
     padding-right: 0;
@@ -185,4 +181,8 @@
 
 Label {
     -unity-text-align: upper-center;
+}
+
+#missing-label {
+    display: none;
 }
