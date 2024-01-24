@@ -8,7 +8,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
     {
         protected override NodeState Run(BehaviourTreeRunner runner)
         {
-            Child.RunBehaviour(runner);
+            if (Child) Child.RunBehaviour(runner);
             return NodeState.Running;
         }
     }
