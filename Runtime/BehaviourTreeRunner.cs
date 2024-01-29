@@ -155,7 +155,7 @@ namespace MoshitinEncoded.AI
             var parameter = _BehaviourTreeInstance.GetParameter(name);
             if (parameter == null)
             {
-                LogMissingParameterWarning();
+                LogMissingParameterWarning(name);
             }
 
             return parameter;
@@ -178,7 +178,7 @@ namespace MoshitinEncoded.AI
             var parameter = _BehaviourTreeInstance.GetParameter<T>(name);
             if (parameter == null)
             {
-                LogMissingParameterWarning(typeof(T));
+                LogMissingParameterWarning(name, typeof(T));
             }
 
             return parameter;
@@ -199,11 +199,11 @@ namespace MoshitinEncoded.AI
                 context: gameObject);
         }
 
-        private void LogMissingParameterWarning(Type parameterType = null)
+        private void LogMissingParameterWarning(string parameterName, Type parameterType = null)
         {
             var typeText = parameterType != null ? $": {parameterType.Name}" : "";
             Debug.LogWarning(
-                message: $"BehaviourTree Warning: parameter \"{name}{typeText}\" doesn't exist in {_BehaviourTree.name} Behaviour Tree.",
+                message: $"BehaviourTree Warning: parameter \"{parameterName}{typeText}\" doesn't exist in {_BehaviourTree.name} Behaviour Tree.",
                 context: gameObject);
         }
     }
