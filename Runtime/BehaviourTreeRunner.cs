@@ -1,4 +1,5 @@
 using System;
+
 using MoshitinEncoded.AI.BehaviourTreeLib;
 using MoshitinEncoded.GraphTools;
 
@@ -11,22 +12,24 @@ namespace MoshitinEncoded.AI
         /// <summary>
         /// Called after <i>Awake</i> and <i>ChangeBehaviourTree</i> methods. Useful to <b>set</b> parameters.
         /// </summary>
-        public event System.Action Initialized;
+        public event Action Initialized;
 
         /// <summary>
         /// Called before the Behaviour Tree update. Useful to <b>update</b> parameters.
         /// </summary>
-        public event System.Action WillUpdate;
+        public event Action WillUpdate;
 
         /// <summary>
         /// Called after the Behaviour Tree update.
         /// </summary>
-        public event System.Action Updated;
+        public event Action Updated;
 
         [SerializeField] private BehaviourTree _BehaviourTree;
 
         [Tooltip("How and when the Behaviour Tree will be updated.")]
         [SerializeField] private TreeUpdateMode _UpdateMode = TreeUpdateMode.Update;
+
+        [SerializeField] private BlackboardParameterOverride[] _ParameterOverrides;
 
         private BehaviourTree _BehaviourTreeInstance;
 
@@ -44,6 +47,8 @@ namespace MoshitinEncoded.AI
         /// How the Behaviour Tree will be updated.
         /// </summary>
         public TreeUpdateMode UpdateMode { get => _UpdateMode; set => _UpdateMode = value; }
+
+        public BlackboardParameterOverride[] ParameterOverrides => _ParameterOverrides;
 
         private void Awake()
         {
@@ -183,7 +188,7 @@ namespace MoshitinEncoded.AI
         {
             if (_BehaviourTree == null) return;
 
-            _BehaviourTreeInstance = _BehaviourTree.Clone();
+            _BehaviourTreeInstance = _BehaviourTree.Clone(_ParameterOverrides);
             Initialized?.Invoke();
         }
 

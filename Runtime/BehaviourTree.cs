@@ -56,7 +56,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         /// Clones the Behaviour Tree with all his components.
         /// </summary>
         /// <returns> The Behaviour Tree clone. </returns>
-        public BehaviourTree Clone()
+        public BehaviourTree Clone(BlackboardParameterOverride[] parameterOverrides = null)
         {
             // Clone behaviour tree and nodes
             BehaviourTree clonedTree = Instantiate(this);
@@ -71,7 +71,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
             });
 
             // Clone blackboard
-            clonedTree._Blackboard = Blackboard.Clone();
+            clonedTree._Blackboard = Blackboard.CloneAndOverride(parameterOverrides);
 
             return clonedTree;
         }
