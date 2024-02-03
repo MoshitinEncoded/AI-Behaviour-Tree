@@ -1,7 +1,7 @@
 ![Portrait](Documentation~/Images/AIBehaviourTree_Portrait.JPG)
 # AI Behaviour Tree
 
-Behaviour Trees are an amazing way of creating AIs, letting you write complex behaviours in a modular, easy and intuitive way. This project tries to deliver a simple yet complete Behaviour Tree solution for Unity, with Editor and Runtime tools.
+Behaviour Trees are an amazing way of creating AIs, letting you write complex behaviours in a modular, easy and intuitive way. This project tries to deliver a simple yet complete Behaviour Tree tool for Unity, with Editor and Runtime features.
 
 This README assumes that you have some idea of what a BehaviorTree is; If you don't, I suggest you Google it first.
 
