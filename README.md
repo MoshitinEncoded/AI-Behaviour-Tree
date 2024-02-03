@@ -133,8 +133,8 @@ Perfecto! Esto nos mostrará un mensaje por consola cada vez que se ejecute el B
 Ahora que tenemos el `BehaviourTree` listo para usar, es hora de ponerlo en marcha. Para ello crearemos un GameObject en la escena y le agregaremos el componente `BehaviourTreeRunner`. Luego, debemos asignarle el `BehaviourTree` que acabamos de crear.
 
 <figure>
-    <img src="Documentation~/Images/AIBehaviourTree_LogMessageRunner.JPG">
-    <figcaption><i>The BehaviourTreeRunner with its BehaviourTree setted.</i></figcaption>
+    <img src="Documentation~/Images/AIBehaviourTree_LogMessageRunner.JPG" alt="Log">
+    <figcaption>The BehaviourTreeRunner with its BehaviourTree setted.</figcaption>
 </figure>
 
 Listo! Dale a `Play` y veamos qué pasa.
@@ -157,7 +157,7 @@ Comencemos preparando la escena:
 4. Agrega una Cápsula de nombre "Enemy" con un componente `NavMeshAgent`.
 
 ![FloorInspector](Documentation~/Images/AIBehaviourTree_FloorInspector.JPG)
-z
+
 *The Floor inspector.*
 
 ![PlayerInspector](Documentation~/Images/AIBehaviourTree_PlayerInspector.JPG)

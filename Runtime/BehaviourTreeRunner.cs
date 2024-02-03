@@ -167,7 +167,7 @@ namespace MoshitinEncoded.AI
         /// <typeparam name="T"> Parameter Type. </typeparam>
         /// <param name="name"> Parameter name as shown on the Blackboard. </param>
         /// <returns> The parameter if found, <b>null</b> otherwise. </returns>
-        public BlackboardParameter<T> GetParameterByRef<T>(string name)
+        public BehaviourTreeParameter<T> GetParameterByRef<T>(string name)
         {
             if (_BehaviourTreeInstance == null)
             {
@@ -181,7 +181,15 @@ namespace MoshitinEncoded.AI
                 LogMissingParameterWarning(name, typeof(T));
             }
 
-            return parameter;
+            if (parameter is BehaviourTreeParameter<T> typedParameter)
+            {
+                return typedParameter;
+            }
+            else
+            {
+                LogWrongParameterError(name, typeof(T));
+                return null;
+            }
         }
 
         private void InitializeBehaviourTree()
@@ -204,6 +212,14 @@ namespace MoshitinEncoded.AI
             var typeText = parameterType != null ? $": {parameterType.Name}" : "";
             Debug.LogWarning(
                 message: $"BehaviourTree Warning: parameter \"{parameterName}{typeText}\" doesn't exist in {_BehaviourTree.name} Behaviour Tree.",
+                context: gameObject);
+        }
+
+        private void LogWrongParameterError(string parameterName, Type parameterType = null)
+        {
+            var typeText = parameterType != null ? $": {parameterType.Name}" : "";
+            Debug.LogError(
+                message: $"BehaviourTree Error: parameter {parameterName}{typeText} is not a BehaviourTreeParameter.",
                 context: gameObject);
         }
     }
