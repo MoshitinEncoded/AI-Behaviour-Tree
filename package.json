@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "displayName": "AI Behaviour Tree",
   "description": "A visual, node-based Behaviour Tree tool for Unity.\n\nDependencies\n- https://github.com/MoshitinEncoded/METools.git",
-  "unity": "2022.1",
+  "unity": "2022.2",
   "documentationUrl": "https://example.com/",
   "changelogUrl": "https://example.com/changelog.html",
   "licensesUrl": "https://github.com/MoshitinEncoded/Tree-AI/blob/main/LICENSE",
