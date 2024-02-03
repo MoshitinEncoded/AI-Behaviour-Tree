@@ -1,21 +1,15 @@
 ![Portrait](Documentation~/Images/AIBehaviourTree_Portrait.JPG)
 # AI Behaviour Tree
 
-This repository contains a Behaviour Tree tool for Unity, expanded from the one created by **TheKiwiCoder** in [this video](), whose repository you can find [here](https://github.com/thekiwicoder0/UnityBehaviourTreeEditor).
+Behaviour Trees are an amazing way of creating AIs, letting you write complex behaviours in a modular, easy and intuitive way. This project tries to deliver a simple yet complete Behaviour Tree solution for Unity, with Editor and Runtime tools.
 
-If you don't know what a Behavior Tree is, I suggest you Google it first.
+This README assumes that you have some idea of what a BehaviorTree is; If you don't, I suggest you Google it first.
 
 > [!NOTE]
 > The minimum version currently supported is **Unity 2022.2**
 
-> [!IMPORTANT]
-> Este proyecto se encuentra en una fase de desarrollo temprana, por lo que es posible que encuentres errores y **NO** se recomienda su uso en producción.
-
-## Goal
-
-Como seguramente ya saben, hoy en día existen diferentes herramientas de Behaviour Tree para Unity tanto en GitHub como en la tienda de Unity, y aunque suelen ser increíblemente flexibles, sus interfaces tienden a alejarse de la forma en que Unity crea las suyas, resultando poco intuitivas a primera vista.
-
-Este proyecto trata de cambiar eso entregando una interfaz similar a la de Unity, resultando en una herramienta simple, flexible e intuitiva.
+> [!WARNING]
+> This project is in an early phase of development and although it is quite stable, you may encounter bugs and is **NOT** recommended for use in production.
 
 ## Table of Contents
 
@@ -25,7 +19,8 @@ Este proyecto trata de cambiar eso entregando una interfaz similar a la de Unity
     1. [Graph](#graph)
         - [Navigation](#navigation)
         - [Shortcuts](#shortcuts)
-        - [Adding Nodes](#adding-nodes)
+        - [Add Nodes](#add-nodes)
+        - [Create Nodes](#create-nodes)
     2. [Runner](#runner)
 
 ## Features
@@ -36,6 +31,9 @@ Este proyecto trata de cambiar eso entregando una interfaz similar a la de Unity
 - Runtime Debugger
 
 ## Installation
+
+> [!NOTE]
+> At the moment, you can install this package ONLY through the **Package Manager** using **Git**.
 
 First of all, we need to install a dependency called **METools**.
 
@@ -56,31 +54,32 @@ https://github.com/MoshitinEncoded/AI-Behaviour-Tree.git
 
 ## Getting Started
 
-AI Behaviour Tree está compuesto principalmente de un **ScriptableObject** llamado `BehaviourTree` y un **MonoBehaviour** llamado `BehaviourTreeRunner`.
+AI Behavior Tree is mainly composed of a **ScriptableObject** called `BehaviourTree` and a **MonoBehaviour** called `BehaviourTreeRunner`.
 
-Al igual que el `Animator` de Unity, el **ScriptableObject** contiene el comportamiento mientras que el **MonoBehaviour** se encarga de ejecutarlo. Comencemos creando un `BehaviourTree` en nuestro proyecto.
+Like Unity's `Animator`, the **ScriptableObject** contains the behavior while the **MonoBehaviour** is responsible for running it. Let's start by creating a `BehaviourTree` in our project.
 
-1. Ve a tu ventana de proyecto y haz clic derecho para abrir el menú contextual o haz clic en el botón `+` en la esquina superior izquierda.
-2. Selecciona `Crear > AI > BehaviourTree` y elige un nombre.
-3. Haz doble clic sobre el **ScriptableObject** para poder editarlo.
+1. Go to your project window and right-click to open the context menu or click the `+` button in the top left corner.
+2. Select `Create > Moshitin Encoded > Behaviour Tree` and choose a name.
+3. Double click on the **ScriptableObject** to edit it.
 
-Verás que ha aparecido una nueva ventana, agrándala y veamos qué tiene.
+You will see that a new window has appeared, arrange it to your liking and let's see what it has:
 
 ![Initial Graph](Documentation~/Images/AIBehaviourTree_InitialGraph.JPG)
+
 *A blank BehaviourTree graph.*
 
-Deberías ver algo como esto. Como puedes ver es súper simple, por un lado tenemos el **Grafo** y por el otro el **Blackboard**.
+As you can see it is super simple, on one hand we have the **Graph** and on the other the **Blackboard**.
 
 ### Graph
 
-El grafo contiene el árbol de nodos y sus conexiones. Al principio solo tendrás un nodo por defecto llamado `Root`, el cual no puede ser copiado ni eliminado.
+The Graph contains the tree of nodes and their connections. At first you will only have one default node called `Root`, which cannot be copied or deleted.
 
-El árbol comienza su ejecución a través del `Root` y luego parte hacia el resto de nodos. Cuando los nodos devuelven su estado al `Root`, finaliza la ejecución del árbol de ese frame.
+In each frame the tree begins its execution through the `Root` and then continues towards its child. When the child returns its state to the `Root`, it terminates the execution of the tree in that frame.
 
-Solo existen 3 estados que un nodo puede devolver: `Success`, `Running` o `Failure`. 
+There are only 3 states that a node can return: `Success`, `Running` or `Failure`.
 
-> [!NOTE]
-> Ten en cuenta que si el `Root` recibe el estado `Success` o `Failure`, frenará la ejecución del árbol por completo y deberás reiniciarlo manualmente.
+> [!IMPORTANT]
+> Note that if the `Root` receives the status `Success` or `Failure`, it will stop the tree from running completely and you will need to restart it manually.
 
 #### Navigation
 
@@ -95,6 +94,7 @@ Solo existen 3 estados que un nodo puede devolver: `Success`, `Running` o `Failu
 | Open Contextual Menu | Right-Click         |
 
 #### Shortcuts
+
 | Action               | Shortcut            |
 | -------------------- | ------------------- |
 | Delete               | Del                 |
@@ -105,75 +105,139 @@ Solo existen 3 estados que un nodo puede devolver: `Success`, `Running` o `Failu
 | Focus All            | A                   |
 | Create Node          | Spacebar            |
 
+#### Create Nodes
+
+Right click on the Graph and select `Create Node` or press the `Space` key on your keyboard to open the search window. Here you can search for any type of node that comes by default or that you have created yourself. Selecting any of these will add it to the graph of your BehaviourTree.
+
+#### Create Custom Nodes
+
+Creating your own node is very simple, you just have to create a script that inherits from a **node class** and add the `CreateNodeMenu` attribute on top of it.
+
+##### Node Classes
+
+At the moment there are 3 node classes you can inherit from:
+
+| Node Class      | Description                                             |
+| --------------- | ------------------------------------------------------- |
+| `CompositeNode` | Has multiple childs. It is meant for flow control.      |
+| `DecoratorNode` | Has only one child. It is meant for child/flow control. |
+| `TaskNode`      | Does not have children. It is meant for logic.          |
+
+> [!NOTE]
+> If the compiler doesn't find the node classes, make sure you import these `namespaces` at the start of your script:
+> ```CSharp
+> using MoshitinEncoded.AI;
+> using MoshitinEncoded.AI.BehaviourTreeLib;
+> ```
+
+##### CreateNodeMenu Attribute
+
+Once you have created your class, you may notice that the `CreateNodeMenu` attribute requires a `path`. This parameter represents the submenu in the search window where your node will appear (e.g. "Task/Follow Target").
+
+##### Functions
+
+There are multiple functions that you can override to implement your node logic:
+
+| Function       | When is called                                 |
+| -------------- | ---------------------------------------------- |
+| `Run`          | Every time your node runs.                     |
+| `OnInitialize` | The first time your node starts running.  |
+| `OnStart`      | When your node starts running.                 |
+| `OnStop`       | When your node returns `Success` or `Failure`. |
+
+### Blackboard
+
+The Blackboard contains parameters that provide useful information to the nodes, allowing them to communicate with each other and with the components of the scene.
+
+#### Add Parameters
+
+In the editor do the following:
+
+1. Press the `+` button in the upper right corner of the Blackboard.
+2. Select the parameter type you want to add.
+3. Double-click or `Right-Click > Rename` on the parameter to give it an appropriate name.
+
+#### Get/Set Parameters
+
+You can **Get** and **Set** parameters through the `BehaviourTreeRunner` functions:
+
+- `GetParameter<>`
+- `SetParameter<>`
+- `GetParameterByRef`
+- `GetParameterByRef<>`
+
+If you want to know another way of getting and setting a parameter, read the [Optimizations](#optimization) section.
+
+### First Steps
+
+Now that you know the basics, let's start by creating an extremely simple BehaviourTree in order to show its most basic operation. This behaviour will log a message to the console each frame.
 
 #### Adding Nodes
 
-Haz clic derecho sobre el grafo y selecciona `Crear Nodo` o presiona la tecla `Espacio` en tu teclado para abrir la ventana de búsqueda. 
+Right click on the Graph and select `Create Node` or press the `Space` key on your keyboard to open the search window. Here you can search for any type of node that comes by default or that you have created yourself.
 
-Aquí puedes ver los diferentes tipos de nodos a tu disposición: `Task`, `Decorator` y `Composite`.
-Puedes buscar los nodos a mano o escribir el nombre en la barra de búsqueda.
-
-Por el momento, vamos a añadir 2 nodos: `Repeater` y `Log Message`.
-
-Conecta los nodos de la siguiente forma:
+Add the `Repeater` and `LogMessage` nodes, and connect them as follows:
 
 ![LogMessage Graph](Documentation~/Images/AIBehaviourTree_LogMessageGraph.JPG)
 
-Luego selecciona el nodo `Log Message` y escribe algún bonito mensaje :)
+The `Repeater` node is responsible for running its child node each frame, and the `LogMessage` node logs a message to the console each time it is executed.
+
+Now select the `Log Message` node and write some nice message :smile:
 
 ![LogMessage Node Inspector](Documentation~/Images/AIBehaviourTree_LogMessage.JPG)
 
-Perfecto! Esto nos mostrará un mensaje por consola cada vez que se ejecute el BehaviourTree. Vamos a implementarlo!
+Perfect! This will show us a message in the console every time the BehaviorTree is executed. Let's add it to the scene!
 
 > [!IMPORTANT]
-> El BehaviourTree no se guarda automáticamente, asi que asegúrate de guardar cada tanto.
+> The BehaviorTree does not save automatically, so be sure to save every once in a while.
 
-### Runner
+#### Runner
 
-Ahora que tenemos el `BehaviourTree` listo para usar, es hora de ponerlo en marcha. Para ello crearemos un GameObject en la escena y le agregaremos el componente `BehaviourTreeRunner`. Luego, debemos asignarle el `BehaviourTree` que acabamos de crear.
+Now that we have the `BehaviourTree` ready to use, it's time to get it up and running:
 
-<figure>
-    <img src="Documentation~/Images/AIBehaviourTree_LogMessageRunner.JPG" alt="Log">
-    <figcaption>The BehaviourTreeRunner with its BehaviourTree setted.</figcaption>
-</figure>
+1. Create a GameObject in the scene and add the `BehaviourTreeRunner` component to it.
+2. Assign the `BehaviourTree` we just created to it.
 
-Listo! Dale a `Play` y veamos qué pasa.
+![LogMessage Example: Runner](Documentation~/Images/AIBehaviourTree_LogMessageRunner.JPG)
 
-Si te apareció el mensaje que escribiste por consola repetidas veces, felicidades, quiere decir que funciona! Pero seamos realistas, no instalaste este paquete para imprimir cosas por consola. Es hora de crear una IA!
+That's all! Hit **Play** and let's see what happens.
 
-### Creating an AI
+If the message you wrote appeared repeatedly on the console, congratulations, it means it works! But let's face it, you didn't install this package to print things via console. It's time to create an AI!
 
-Nuestra IA tendrá un comportamiento sencillo: detectar si el jugador está cerca y perseguirlo. De lo contrario, quedarse en su lugar.
+### Your First AI
+
+Our AI will have a simple behavior: detect if the player is nearby and chase him. Otherwise, stay in place.
 
 #### Scene
 
-Comencemos preparando la escena:
+Let's start by setting the scene:
 
 1. Add a Plane named "Floor" with the `NavMeshSurface` component and bake it.
-2. Agrega una cápsula de nombre "Player" con los siguientes componentes:
-    1. `Rigidbody` (con "Kinematic" habilitado y "UseGravity" deshabilitado)
-    2. `NavMeshModifier` (con "Mode: Remove Object")
-3. Ponle el tag "Player" al Player, así podremos identificarlo más tarde.
-4. Agrega una Cápsula de nombre "Enemy" con un componente `NavMeshAgent`.
+2. Add a Capsule named "Player" with the following components:
+    1. `Rigidbody` (with "Kinematic: enabled" and "UseGravity: disabled")
+    2. `NavMeshModifier` (with "Mode: Remove Object"). This prevents the Player from being taken into account for the `NavMeshSurface` baking, in case you want to do it again.
+3. Setup the Player tag to "Player" so we can identify him later on.
+4. Add a Capsule named "Enemy" with a `NavMeshAgent` component.
 
 ![FloorInspector](Documentation~/Images/AIBehaviourTree_FloorInspector.JPG)
 
-*The Floor inspector.*
+*Floor inspector.*
 
 ![PlayerInspector](Documentation~/Images/AIBehaviourTree_PlayerInspector.JPG)
 
-*The Player inspector.*
+*Player inspector.*
 
 ![EnemyInspector](Documentation~/Images/AIBehaviourTree_EnemyInspector.JPG)
 
-*The Enemy inspector.*
+*Enemy inspector.*
 
-Ahora mismo el Player y el Enemy se ven idénticos. Para que sea más fácil distinguirlos, le añadiremos un material rojo al enemigo:
+Right now the Player and the Enemy look identical. To make it easier to distinguish them, we will add a red material to the Enemy:
 
 ![Scene](Documentation~/Images/AIBehaviourTree_Scene_1.JPG)
+
 *The new Hierarchy and Scene.*
 
-Perfecto! Ahora solo nos queda un preparativo más, debemos crear un script que detecte cuándo el Player se encuentra cerca de nuestro enemigo. Para no aburrirlos, aquí les dejo el script que necesitan (solo usen sus habilidades legendarias de copiar y pegar):
+Perfect! Now we only have one preparation left, we must create a script that detects when the Player is close to our enemy. So as not to bore you, here is the script you need (just use your legendary copy and paste skills):
 
 ```CSharp
 using System.Collections.Generic;
@@ -205,42 +269,47 @@ public class SimpleSensor : MonoBehaviour
 }
 ```
 
-Una vez que lo tengan:
+Once you have it:
 
-1. Agreguen un nuevo GameObject llamado "Sensor" como hijo del GameObject "Enemy".
-1. Agrégenle un `SphereCollider` con "Is Trigger" habilitado y "Radius" a 5.
-2. Agréguenle el script que acabamos de crear con "Target Tag" seteado a "Player".
+1. Add a new GameObject called "Sensor" as a child of the GameObject "Enemy".
+1. Attach to it a `SphereCollider` with "Is Trigger: enabled" and "Radius: 5".
+2. Attach to it the component we just created with "Target Tag: Player".
 
-![Scene](Documentation~/Images/AIBehaviourTree_SensorInspector.JPG)
-*The Sensor inspector.*
+![Sensor Inspector](Documentation~/Images/AIBehaviourTree_SensorInspector.JPG)
 
-Primero que nada, crea un nuevo `BehaviourTree` llamado `Enemy` en el que desarrollaremos nuestra IA.
+*Sensor inspector.*
 
+Listo! Ya tenemos todos los preparativos para hacer nuestra IA, asi que pasemos al `BehaviourTree`.
 
+#### BehaviourTree
 
-Para esto necesitaremos crear nuestros propios nodos, asi que vamos con ello.
+Primero que nada, crea un nuevo `BehaviourTree` llamado `Enemy` en el que desarrollaremos nuestra IA. Para esto necesitaremos crear nuestros propios nodos, asi que vamos con ello.
 
-#### Creating Nodes
+##### Creating Nodes
 
 Crear un nuevo nodo es muy simple, solo tienes que crear un script que herede de una **clase de nodo** y agregar el atributo `CreateNodeMenu` encima de la clase.
 
 Por el momento hay 3 clases de nodo de las cuales puedes heredar: `CompositeNode`, `DecoratorNode` y `TaskNode`, siendo ésta última donde podrás implementar la lógica de las IA.
 
-> [!NOTE]
-> Si el compilador no encuentra las clases de nodo, asegúrate de importar estos `namespace` al inicio de tu script
-> ```CSharp
-> using MoshitinEncoded.AI;
-> using MoshitinEncoded.AI.BehaviourTreeLib;
-> ```
+Para nuestra IA vamos a necesitar 3 nodos que hereden de `TaskNode` llamados `IsTargetAtSightNode`, `FollowTargetNode` y `StopAgentNode`.
 
-Para nuestra IA vamos a necesitar 3 nodos que hereden de `TaskNode` llamados `IsTargetAtSightNode`, `FollowTargetNode` y `StopAgentNode`. Comencemos creando el `TargetAtSightNode`.
+`IsTargetAtSight` se encargará de revisar si el Player fue detectado por el Sensor, en caso afirmativo se ejecutará el nodo `FollowTargetNode` el cual hará que la IA siga al jugador, y en caso de que no fuera detectado se ejecutará el `StopAgentNode` que detendrá a la IA.
+
+Comencemos creando el `TargetAtSightNode`.
 
 1. Crea un script llamado `TargetAtSightNode`.
 2. Haz que herede de `TaskNode`.
 3. Implementa la clase abstracta.
 4. Agrégale el atributo `CreateNodeMenu` a la clase.
 
-Notarás que el atributo te pedirá un **string** llamado `path`, éste representa el submenú en el que aparecerá cuando intentes añadir un nodo al grafo. Para este ejercicio le pondremos *"Task/Condition/Is Target at Sight"*.
+> [!NOTE]
+> Si el compilador no encuentra las clases de nodo, asegúrate de importar estos `namespace` al inicio de tu script:
+> ```CSharp
+> using MoshitinEncoded.AI;
+> using MoshitinEncoded.AI.BehaviourTreeLib;
+> ```
+
+Notarás que el atributo te pedirá un **string** llamado `path`, éste representa el submenú en el que aparecerá cuando intentes añadir un nodo al grafo. Yo lo añadiré al submenú *"Task/Condition/Is Target at Sight"*, pero tú puedes añadirlo a donde quieras.
 
 Debería quedarte de la siguiente forma:
 
@@ -260,3 +329,29 @@ public class IsTargetAtSightNode : TaskNode
 
 > [!NOTE]
 > Opcionalmente, también puedes agregarle una descripción al nodo con el atributo `Tooltip` encima de la clase.
+
+Como puedes observar, al implementar la clase de nodo disponemos de una función llamada `Run`. Esta función se ejecuta cada vez que el nodo es ejecutado y por lo general contiene la lógica del nodo, además debe ser implementada de manera obligatoria.
+
+> [!NOTE]
+> Si quieres tener más control sobre la ejecución de tu nodo, puedes sobreescribir las funciones `OnInitialize`, `OnStart` y `OnStop`.
+
+
+Una vez hecho, ya podremos añadir el nodo a nuestro grafo. Crea los 2 scripts faltantes y vayamos al grafo a agregarlos.
+
+![Enemy Graph with new nodes](Documentation~/Images/AIBehaviourTree_FirstAI_1.JPG)
+
+Ahora que tenemos los nodos, es hora de implementarlos.
+
+##### Stop Agent
+
+Comencemos por el más simple. Abre el script `StopAgentNode` para poder implementarlo.
+
+Una vez abierto, lo primero que necesitaremos es obtener acceso al componente NavMeshAgent de nuestra IA. Para eso utilizaremos los parámetros del Blackboard que se encuentran en el editor de nuestro BehaviourTree
+
+##### Is Target at Sight
+
+Ve al script de `IsTargetAtSightNode` para poder implementarlo. Este nodo se encargará de evaluar si el Player se encuentra dentro del radio del Sensor y de ser el caso, pasarles el Player a otros nodos para que lo usen.
+
+## Attributions
+
+This repository contains a Behaviour Tree tool for Unity expanded from the one created by **TheKiwiCoder** in [this video](), whose repository you can find [here](https://github.com/thekiwicoder0/UnityBehaviourTreeEditor).
