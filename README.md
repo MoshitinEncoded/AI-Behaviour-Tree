@@ -1,7 +1,7 @@
 ![Portrait](Documentation~/Images/AIBehaviourTree_Portrait.JPG)
 # AI Behaviour Tree
 
-Behaviour Trees are an amazing way of creating AIs, letting you write complex behaviours in a modular, easy and intuitive way. This project tries to deliver a simple yet complete Behaviour Tree tool for Unity, with Editor and Runtime features.
+Behaviour Trees are an amazing way of creating AIs, letting you write complex behaviours in a modular, easy and intuitive way. This project tries to deliver a simple yet complete Behaviour Tree tool for Unity with Editor and Runtime features.
 
 This README assumes that you have some idea of what a BehaviorTree is; If you don't, I suggest you Google it first.
 
@@ -19,9 +19,22 @@ This README assumes that you have some idea of what a BehaviorTree is; If you do
     1. [Graph](#graph)
         - [Navigation](#navigation)
         - [Shortcuts](#shortcuts)
-        - [Add Nodes](#add-nodes)
         - [Create Nodes](#create-nodes)
-    2. [Runner](#runner)
+        - [Create Custom Nodes](#create-custom-nodes)
+            - [Node Classes](#node-classes)
+            - [CreateNodeMenu Attribute](#createnodemenu-attribute)
+            - [Node Functions](#node-functions)
+    2. [Blackboard](#blackboard)
+        - [Add Parameters](#add-parameters)
+        - [Get/Set Parameter Values](#getset-parameter-values)
+            - [By BehaviourTreeRunner Functions](#by-behaviourtreerunner-functions)
+            - [By Parameter Reference](#by-parameter-reference)
+        - [Create Custom Parameters](#create-custom-parameters)
+            - [AddParameterMenu Attribute](#addparametermenu-attribute)
+    3. [BehaviourTreeRunner](#behaviourtreerunner)
+        - [Inspector](#inspector)
+        - [Main Functions](#main-functions)
+4. [Attributions](#attributions)
 
 ## Features
 
@@ -134,16 +147,16 @@ At the moment there are 3 node classes you can inherit from:
 
 Once you have created your class, you may notice that the `CreateNodeMenu` attribute requires a `path`. This parameter represents the submenu in the search window where your node will appear (e.g. "Task/Follow Target").
 
-##### Functions
+##### Node Functions
 
 There are multiple functions that you can override to implement your node logic:
 
-| Function       | When is called                                 |
+| Function       | Description                                    |
 | -------------- | ---------------------------------------------- |
-| `Run`          | Every time your node runs.                     |
-| `OnInitialize` | The first time your node starts running.  |
-| `OnStart`      | When your node starts running.                 |
-| `OnStop`       | When your node returns `Success` or `Failure`. |
+| `Run`          | Called every time your node runs. You have to return the new state of your node.|
+| `OnInitialize` | Called the first time your node starts running.  |
+| `OnStart`      | Called when your node starts running.                 |
+| `OnStop`       | Callled when your node returns `Success` or `Failure`. |
 
 ### Blackboard
 
@@ -157,201 +170,116 @@ In the editor do the following:
 2. Select the parameter type you want to add.
 3. Double-click or `Right-Click > Rename` on the parameter to give it an appropriate name.
 
-#### Get/Set Parameters
+#### Get/Set Parameter Values
 
-You can **Get** and **Set** parameters through the `BehaviourTreeRunner` functions:
+You can manage your parameters in your code through the [BehaviourTreeRunner functions](#behaviourtreerunner). There are several ways to get to the value of a parameter.
 
-- `GetParameter<>`
-- `SetParameter<>`
-- `GetParameterByRef`
-- `GetParameterByRef<>`
+##### By BehaviourTreeRunner Functions
 
-If you want to know another way of getting and setting a parameter, read the [Optimizations](#optimization) section.
+You can *Get* or *Set* the parameter values directly with the `GetParameterValue<>` and `SetParameterValue<>` methods.
 
-### First Steps
+<details>
 
-Now that you know the basics, let's start by creating an extremely simple BehaviourTree in order to show its most basic operation. This behaviour will log a message to the console each frame.
-
-#### Adding Nodes
-
-Right click on the Graph and select `Create Node` or press the `Space` key on your keyboard to open the search window. Here you can search for any type of node that comes by default or that you have created yourself.
-
-Add the `Repeater` and `LogMessage` nodes, and connect them as follows:
-
-![LogMessage Graph](Documentation~/Images/AIBehaviourTree_LogMessageGraph.JPG)
-
-The `Repeater` node is responsible for running its child node each frame, and the `LogMessage` node logs a message to the console each time it is executed.
-
-Now select the `Log Message` node and write some nice message :smile:
-
-![LogMessage Node Inspector](Documentation~/Images/AIBehaviourTree_LogMessage.JPG)
-
-Perfect! This will show us a message in the console every time the BehaviorTree is executed. Let's add it to the scene!
-
-> [!IMPORTANT]
-> The BehaviorTree does not save automatically, so be sure to save every once in a while.
-
-#### Runner
-
-Now that we have the `BehaviourTree` ready to use, it's time to get it up and running:
-
-1. Create a GameObject in the scene and add the `BehaviourTreeRunner` component to it.
-2. Assign the `BehaviourTree` we just created to it.
-
-![LogMessage Example: Runner](Documentation~/Images/AIBehaviourTree_LogMessageRunner.JPG)
-
-That's all! Hit **Play** and let's see what happens.
-
-If the message you wrote appeared repeatedly on the console, congratulations, it means it works! But let's face it, you didn't install this package to print things via console. It's time to create an AI!
-
-### Your First AI
-
-Our AI will have a simple behavior: detect if the player is nearby and chase him. Otherwise, stay in place.
-
-#### Scene
-
-Let's start by setting the scene:
-
-1. Add a Plane named "Floor" with the `NavMeshSurface` component and bake it.
-2. Add a Capsule named "Player" with the following components:
-    1. `Rigidbody` (with "Kinematic: enabled" and "UseGravity: disabled")
-    2. `NavMeshModifier` (with "Mode: Remove Object"). This prevents the Player from being taken into account for the `NavMeshSurface` baking, in case you want to do it again.
-3. Setup the Player tag to "Player" so we can identify him later on.
-4. Add a Capsule named "Enemy" with a `NavMeshAgent` component.
-
-![FloorInspector](Documentation~/Images/AIBehaviourTree_FloorInspector.JPG)
-
-*Floor inspector.*
-
-![PlayerInspector](Documentation~/Images/AIBehaviourTree_PlayerInspector.JPG)
-
-*Player inspector.*
-
-![EnemyInspector](Documentation~/Images/AIBehaviourTree_EnemyInspector.JPG)
-
-*Enemy inspector.*
-
-Right now the Player and the Enemy look identical. To make it easier to distinguish them, we will add a red material to the Enemy:
-
-![Scene](Documentation~/Images/AIBehaviourTree_Scene_1.JPG)
-
-*The new Hierarchy and Scene.*
-
-Perfect! Now we only have one preparation left, we must create a script that detects when the Player is close to our enemy. So as not to bore you, here is the script you need (just use your legendary copy and paste skills):
+<summary> Example </summary>
 
 ```CSharp
-using System.Collections.Generic;
+public string ParameterName;
 
-using UnityEngine;
-
-public class SimpleSensor : MonoBehaviour
+protected override NodeState Run(BehaviourTreeRunner runner)
 {
-    [SerializeField] private string _TargetTag;
-    [SerializeField] private Transform _Target;
-
-    public Transform Target => _Target;
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag(_TargetTag) && !_Target)
-        {
-            _Target = other.transform;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.transform == _Target)
-        {
-            _Target = null;
-        }
-    }
+    var parameterValue = runner.GetParameterValue<int>(ParameterName);
+    runner.SetParameterValue(ParameterName, 5);
 }
 ```
 
-Once you have it:
+</details>
 
-1. Add a new GameObject called "Sensor" as a child of the GameObject "Enemy".
-1. Attach to it a `SphereCollider` with "Is Trigger: enabled" and "Radius: 5".
-2. Attach to it the component we just created with "Target Tag: Player".
+> [!WARNING]
+> This method has an impact on the CPU since your `BehaviorTree` looks for the parameter every time you call any of the above methods. If you find yourself frequently reading and/or writing to a parameter value, it is recommended to use the following method.
 
-![Sensor Inspector](Documentation~/Images/AIBehaviourTree_SensorInspector.JPG)
+##### By Parameter Reference
 
-*Sensor inspector.*
+You can get a reference to the parameter that you want to use with the `GetParameter<>` function in your `BehaviourTreeRunner` and then, *Get* or *Set* his value with the Value property.
 
-Listo! Ya tenemos todos los preparativos para hacer nuestra IA, asi que pasemos al `BehaviourTree`.
+<details>
 
-#### BehaviourTree
+<summary> Example </summary>
 
-Primero que nada, crea un nuevo `BehaviourTree` llamado `Enemy` en el que desarrollaremos nuestra IA. Para esto necesitaremos crear nuestros propios nodos, asi que vamos con ello.
+```CSharp
+public string ParameterName;
 
-##### Creating Nodes
+private BehaviourTreeParameter _Parameter;
 
-Crear un nuevo nodo es muy simple, solo tienes que crear un script que herede de una **clase de nodo** y agregar el atributo `CreateNodeMenu` encima de la clase.
+protected override void OnInitialize(BehaviourTreeRunner runner)
+{
+    _Parameter = runner.GetParameter<int>(ParameterName);
+}
 
-Por el momento hay 3 clases de nodo de las cuales puedes heredar: `CompositeNode`, `DecoratorNode` y `TaskNode`, siendo ésta última donde podrás implementar la lógica de las IA.
+protected override NodeState Run(BehaviourTreeRunner runner)
+{
+    var value = _Parameter.Value;
+    _Parameter.Value = 5;
+}
+```
 
-Para nuestra IA vamos a necesitar 3 nodos que hereden de `TaskNode` llamados `IsTargetAtSightNode`, `FollowTargetNode` y `StopAgentNode`.
+</details>
 
-`IsTargetAtSight` se encargará de revisar si el Player fue detectado por el Sensor, en caso afirmativo se ejecutará el nodo `FollowTargetNode` el cual hará que la IA siga al jugador, y en caso de que no fuera detectado se ejecutará el `StopAgentNode` que detendrá a la IA.
-
-Comencemos creando el `TargetAtSightNode`.
-
-1. Crea un script llamado `TargetAtSightNode`.
-2. Haz que herede de `TaskNode`.
-3. Implementa la clase abstracta.
-4. Agrégale el atributo `CreateNodeMenu` a la clase.
-
-> [!NOTE]
-> Si el compilador no encuentra las clases de nodo, asegúrate de importar estos `namespace` al inicio de tu script:
+> [!TIP]
+> There is a class called `BehaviourTreeParameterRef` that does the same thing eliminating the need for a string.
+>
+> <details>
+>
+> <summary> Example </summary>
+>
 > ```CSharp
-> using MoshitinEncoded.AI;
-> using MoshitinEncoded.AI.BehaviourTreeLib;
+> public BehaviourTreeParameterRef Parameter;
+>
+> protected override void OnInitialize(BehaviourTreeRunner runner)
+> {
+>     Parameter.Bind(runner);
+> }
+>
+> protected override NodeState Run(BehaviourTreeRunner runner)
+> {
+>     var value = Parameter.Value;
+>     Parameter.Value = 5;
+> }
 > ```
 
-Notarás que el atributo te pedirá un **string** llamado `path`, éste representa el submenú en el que aparecerá cuando intentes añadir un nodo al grafo. Yo lo añadiré al submenú *"Task/Condition/Is Target at Sight"*, pero tú puedes añadirlo a donde quieras.
+</details>
 
-Debería quedarte de la siguiente forma:
+#### Create Custom Parameters
 
-```CSharp
-using MoshitinEncoded.AI;
-using MoshitinEncoded.AI.BehaviourTreeLib;
+To create your own parameters, you have to:
 
-[CreateNodeMenu(path: "Task/Condition/Is Target at Sight")]
-public class IsTargetAtSightNode : TaskNode
-{
-    protected override NodeState Run(BehaviourTreeRunner runner)
-    {
-        throw new System.NotImplementedException();
-    }
-}
-```
+1. Create a new C# script.
+2. Inherit from `BehaviourTreeParameter`.
+3. Add the `AddParameterMenu` attribute on top of your class.
 
-> [!NOTE]
-> Opcionalmente, también puedes agregarle una descripción al nodo con el atributo `Tooltip` encima de la clase.
+##### AddParameterMenu Attribute
 
-Como puedes observar, al implementar la clase de nodo disponemos de una función llamada `Run`. Esta función se ejecuta cada vez que el nodo es ejecutado y por lo general contiene la lógica del nodo, además debe ser implementada de manera obligatoria.
+This attribute requires two parameters:
 
-> [!NOTE]
-> Si quieres tener más control sobre la ejecución de tu nodo, puedes sobreescribir las funciones `OnInitialize`, `OnStart` y `OnStop`.
+- **Path**: the menu path of the parameter (*e.g. "Component/NavMeshAgent"*).
+- **GroupLevel** (*optional*): determines what parameters it will be grouped with. A higher number means it will be further down his submenu.
 
+### BehaviourTreeRunner
 
-Una vez hecho, ya podremos añadir el nodo a nuestro grafo. Crea los 2 scripts faltantes y vayamos al grafo a agregarlos.
+This **MonoBehaviour** is responsible for running your `BehaviourTree` and works as an interface to interact with it.
 
-![Enemy Graph with new nodes](Documentation~/Images/AIBehaviourTree_FirstAI_1.JPG)
+#### Inspector
 
-Ahora que tenemos los nodos, es hora de implementarlos.
+Here you can assign the `BehaviourTree` you want to run, decide how or when you want to run it and override parameters of the Blackboard.
 
-##### Stop Agent
+#### Main Functions
 
-Comencemos por el más simple. Abre el script `StopAgentNode` para poder implementarlo.
-
-Una vez abierto, lo primero que necesitaremos es obtener acceso al componente NavMeshAgent de nuestra IA. Para eso utilizaremos los parámetros del Blackboard que se encuentran en el editor de nuestro BehaviourTree
-
-##### Is Target at Sight
-
-Ve al script de `IsTargetAtSightNode` para poder implementarlo. Este nodo se encargará de evaluar si el Player se encuentra dentro del radio del Sensor y de ser el caso, pasarles el Player a otros nodos para que lo usen.
+| Function | Description |
+| -------- | ----------- |
+| `GetParameter<>` | Returns the value of a parameter in the Blackboard. |
+| `GetParameterByRef` | Returns a reference to the parameter in the Blackboard. |
+| `GetParameterByRef<>` | Returns a generic reference to the parameter in the Blackboard. If the passed generic type is not correct, it returns null. |
+| `SetParameter<>` | Sets the value of a parameter in the Blackboard. |
 
 ## Attributions
 
-This repository contains a Behaviour Tree tool for Unity expanded from the one created by **TheKiwiCoder** in [this video](), whose repository you can find [here](https://github.com/thekiwicoder0/UnityBehaviourTreeEditor).
+The Behaviour Tree tool in this repository was expanded from the one created by **TheKiwiCoder** in [this video](), whose repository you can find [here](https://github.com/thekiwicoder0/UnityBehaviourTreeEditor).
