@@ -1,0 +1,29 @@
+Box {
+    margin-right: -2px;
+    padding-right: 2px;
+}
+
+.single-line-parameter {
+    flex-direction: row;
+}
+
+.single-line-parameter > PropertyField {
+    flex-grow: 1;
+}
+
+.multi-line-parameter {
+    flex-direction: row;
+}
+
+.multi-line-parameter > PropertyField {
+    flex-grow: 1;
+    padding-left: 15px;
+}
+
+.multi-line-parameter #unity-checkmark {
+    align-self: flex-start;
+}
+
+.instance-multi-line-parameter {
+    padding-left: 15px;
+}

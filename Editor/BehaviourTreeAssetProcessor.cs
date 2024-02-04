@@ -11,7 +11,11 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         {
             foreach (var assetPath in importedAssets)
             {
-                if (!assetPath.EndsWith(".asset")) continue;
+                if (!assetPath.EndsWith(".asset"))
+                {
+                    continue;
+                }
+
                 var behaviourTree = AssetDatabase.LoadAssetAtPath<BehaviourTree>(assetPath);
                 if (!behaviourTree || behaviourTree.RootNode && behaviourTree.Blackboard)
                 {
@@ -22,35 +26,58 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
                 if (!behaviourTree.RootNode)
                 {
-                    var rootNode = behaviourTree.CreateNode(typeof(RootNode));
-                    
-                    AssetDatabase.AddObjectToAsset(rootNode, behaviourTree);
-
-                    var serializedNode = new SerializedObject(rootNode);
-                    serializedNode.FindProperty("_Guid").stringValue = GUID.Generate().ToString();
-                    serializedNode.FindProperty("_Position").vector2Value = Vector2.zero;
-                    serializedNode.FindProperty("_Title").stringValue = "Root";
-                    serializedNode.ApplyModifiedPropertiesWithoutUndo();
-
-                    serializedTree.Update();
-                    serializedTree.FindProperty("_RootNode").objectReferenceValue = rootNode;
-                    serializedTree.FindProperty("_Nodes").AddToObjectArray(rootNode);
-                    serializedTree.ApplyModifiedPropertiesWithoutUndo();
+                    AddRootNode(behaviourTree, serializedTree);
                 }
 
                 if (!behaviourTree.Blackboard)
                 {
-                    var blackboard = ScriptableObject.CreateInstance<Blackboard>();
-                    blackboard.name = "Blackboard";
-                    blackboard.hideFlags = HideFlags.HideInHierarchy;
-
-                    AssetDatabase.AddObjectToAsset(blackboard, behaviourTree);
-
-                    serializedTree.Update();
-                    serializedTree.FindProperty("_Blackboard").objectReferenceValue = blackboard;
-                    serializedTree.ApplyModifiedPropertiesWithoutUndo();
+                    AddBlackboard(behaviourTree, serializedTree);
                 }
             }
+        }
+
+        private static void AddRootNode(BehaviourTree behaviourTree, SerializedObject serializedTree)
+        {
+            var node = ScriptableObject.CreateInstance<Node>();
+            node.name = typeof(Node).Name;
+            node.hideFlags = HideFlags.HideInHierarchy;
+
+            AssetDatabase.AddObjectToAsset(node, behaviourTree);
+
+            var behaviour = ScriptableObject.CreateInstance<RootNode>();
+            behaviour.name = typeof(RootNode).Name;
+            behaviour.hideFlags = HideFlags.HideInHierarchy;
+
+            AssetDatabase.AddObjectToAsset(behaviour, behaviourTree);
+
+            var serializedNode = new SerializedObject(node);
+            serializedNode.FindProperty("_Title").stringValue = "Root";
+            serializedNode.FindProperty("_Guid").stringValue = GUID.Generate().ToString();
+            serializedNode.FindProperty("_Position").vector2Value = Vector2.zero;
+            serializedNode.FindProperty("_Behaviour").objectReferenceValue = behaviour;
+            serializedNode.ApplyModifiedPropertiesWithoutUndo();
+
+            var serializedBehaviour = new SerializedObject(behaviour);
+            serializedBehaviour.FindProperty("_Node").objectReferenceValue = node;
+            serializedBehaviour.ApplyModifiedPropertiesWithoutUndo();
+
+            serializedTree.Update();
+            serializedTree.FindProperty("_RootNode").objectReferenceValue = node;
+            serializedTree.FindProperty("_Nodes").AddToArray(node);
+            serializedTree.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void AddBlackboard(BehaviourTree behaviourTree, SerializedObject serializedTree)
+        {
+            var blackboard = ScriptableObject.CreateInstance<Blackboard>();
+            blackboard.name = "Blackboard";
+            blackboard.hideFlags = HideFlags.HideInHierarchy;
+
+            AssetDatabase.AddObjectToAsset(blackboard, behaviourTree);
+
+            serializedTree.Update();
+            serializedTree.FindProperty("_Blackboard").objectReferenceValue = blackboard;
+            serializedTree.ApplyModifiedPropertiesWithoutUndo();
         }
     }
 }

@@ -1,56 +1,7 @@
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    public abstract class DecoratorNode : Node, IParentNode
+    public abstract class DecoratorNode : NodeBehaviour
     {
-        [SerializeField, HideInInspector] private Node _Child;
-
-        public Node Child
-        {
-            get => _Child;
-            protected set => _Child = value;
-        }
-
-        public void AddChild(Node child)
-        {
-            if (child == null)
-            {
-                return;
-            }
-
-            _Child = child;
-        }
-
-        public void ClearChildren()
-        {
-            _Child = null;
-        }
-
-        internal override Node Clone(bool withChild)
-        {
-            DecoratorNode node = Instantiate(this);
-            if (withChild && Child != null)
-            {
-                node._Child = Child.Clone();
-            }
-            else
-            {
-                node._Child = null;
-            }
-
-            return node;
-        }
-
-        public List<Node> GetChildren()
-        {
-            if (Child != null)
-            {
-                return new List<Node>() { Child };
-            }
-
-            return new List<Node>();
-        }
+        public Node Child => Node.Children.Length > 0 ? Node.Children[0] : null;
     }
 }

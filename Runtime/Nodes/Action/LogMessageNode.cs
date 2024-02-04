@@ -2,15 +2,16 @@ using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateNodeMenu("Action/Debug/Log Message")]
-    public class LogMessageNode : ActionNode
+    [CreateNodeMenu("Task/Debug/Log Message")]
+    [Tooltip("Logs a message to the Unity console.")]
+    public class LogMessageNode : TaskNode
     {
         [Space]
         [Tooltip("Message to print on the console.")]
         [SerializeField] private string _Message;
         [SerializeField] private LogType _LogType;
 
-        protected override NodeState OnUpdate(BehaviourTreeRunner runner)
+        protected override NodeState Run(BehaviourTreeRunner runner)
         {
             switch (_LogType)
             {

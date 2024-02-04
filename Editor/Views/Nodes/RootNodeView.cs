@@ -1,39 +1,27 @@
-using MoshitinEncoded.AI.BehaviourTreeLib;
 using UnityEditor.Experimental.GraphView;
+
 using Node = MoshitinEncoded.AI.BehaviourTreeLib.Node;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
-    internal class RootNodeView : NodeView<RootNode>
+    internal class RootNodeView : DecoratorNodeView
     {
-        public RootNodeView(RootNode node, BehaviourTreeView treeView) : base(node, treeView)
+        protected override bool ShowInputPort => false;
+        
+        public RootNodeView(Node node, BehaviourTreeView treeView) : base(node, treeView)
         {
             DisableDelete();
+            DisableCopy();
             title = "Root";
         }
 
-        public override void AddChild(Node child) => SetChild(child);
+        private void DisableDelete() => capabilities &= ~Capabilities.Deletable;
 
-        public override void RemoveChild(Node child) => SetChild(null);
-
-        private void SetChild(Node child)
-        {
-            SerializedNode.Update();
-            var childProperty = SerializedNode.FindProperty("_Child");
-            childProperty.objectReferenceValue = child;
-            SerializedNode.ApplyModifiedProperties();
-        }
+        private void DisableCopy() => capabilities &= ~Capabilities.Copiable;
 
         protected override void AddStyleClass()
         {
             AddToClassList("root");
-        }
-
-        protected override void CreateInputPort() { }
-
-        private void DisableDelete()
-        {
-            capabilities &= ~Capabilities.Deletable;
         }
     }
 }

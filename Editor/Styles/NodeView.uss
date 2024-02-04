@@ -71,12 +71,6 @@
     min-width: 150px;
 }
 
-Label {
-    padding-left: 2px;
-    padding-right: 2px;
-    -unity-text-align: upper-center;
-}
-
 #divider {
     min-height: 1px;
     background-color: rgb(72, 72, 72);
@@ -88,7 +82,7 @@ Label {
     min-height: 24px;
 }
 
-.action #input {
+.task #input {
     background-color: rgb(221, 61, 51);
 }
 
@@ -104,10 +98,29 @@ Label {
     background-color: rgb(221, 129, 39);
 }
 
+.missing #input {
+    background-color: rgb(128, 128, 128);
+}
+
+.missing #title-label {
+    color: rgb(255, 0, 0);
+}
+
+.missing #missing-label {
+    color: rgb(255, 0, 0);
+    font-size: 12px;
+    display: flex;
+}
+
 #title-label {
     -unity-font-style: bold;
     font-size: 14px;
     margin-top: 5px;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 1px;
 }
 
 #node-state {
@@ -135,4 +148,41 @@ Label {
 
 .failure #node-state {
     background-color: rgba(255, 25, 25, 0.65);
+}
+
+#unity-text-input {
+    padding-left: 2px;
+    padding-right: 0;
+    -unity-font-style: bold;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 4px;
+    margin-bottom: 0;
+    -unity-text-align: upper-center;
+    font-size: 14px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+#title-text-field {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+#title-text-field Label {
+    display: none;
+}
+
+Label {
+    -unity-text-align: upper-center;
+}
+
+#missing-label {
+    display: none;
 }

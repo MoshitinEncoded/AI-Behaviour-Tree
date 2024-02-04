@@ -1,6 +1,8 @@
-using MoshitinEncoded.GraphTools;
 using System;
 using System.Collections.Generic;
+
+using MoshitinEncoded.GraphTools;
+
 using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
@@ -33,26 +35,6 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         public Blackboard Blackboard => _Blackboard;
 
         /// <summary>
-        /// TO-DO
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public Node CreateNode(Type type)
-        {
-            var node = CreateInstance(type) as Node;
-
-            if (node == null)
-            {
-                return null;
-            }
-
-            node.name = type.Name;
-            node.hideFlags = HideFlags.HideInHierarchy;
-
-            return node;
-        }
-
-        /// <summary>
         /// Updates the Behaviour Tree.
         /// </summary>
         /// <returns> The new state of the Behaviour Tree. </returns>
@@ -62,7 +44,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
 
             if (RootNode.State == NodeState.Running)
             {
-                _State = RootNode.UpdateNode(runner);
+                _State = RootNode.RunBehaviour(runner);
             }
 
             Updated?.Invoke();
@@ -74,7 +56,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         /// Clones the Behaviour Tree with all his components.
         /// </summary>
         /// <returns> The Behaviour Tree clone. </returns>
-        public BehaviourTree Clone()
+        public BehaviourTree Clone(BlackboardParameterOverride[] parameterOverrides = null)
         {
             // Clone behaviour tree and nodes
             BehaviourTree clonedTree = Instantiate(this);
@@ -89,7 +71,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
             });
 
             // Clone blackboard
-            clonedTree._Blackboard = Blackboard.Clone();
+            clonedTree._Blackboard = Blackboard.CloneAndOverride(parameterOverrides);
 
             return clonedTree;
         }
@@ -131,10 +113,9 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
             if (node)
             {
                 visiter.Invoke(node);
-                if (node is IParentNode parentNode)
+                foreach (var child in node.Children)
                 {
-                    var children = parentNode.GetChildren();
-                    children.ForEach(child => Traverse(child, visiter));
+                    Traverse(child, visiter);
                 }
             }
         }

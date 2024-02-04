@@ -2,23 +2,17 @@ using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateNodeMenu("Action/Wait")]
-    public class WaitNode : ActionNode
+    [CreateNodeMenu("Task/Wait")]
+    [Tooltip("Waits N seconds before returning success.")]
+    public class WaitNode : TaskNode
     {
         [Space]
         [Tooltip("Time in seconds to wait.")]
         [SerializeField] private float _Time = 1f;
 
-        private float _StartTime;
-
         public float Time => _Time;
 
-        protected override void OnStart(BehaviourTreeRunner runner)
-        {
-            _StartTime = UnityEngine.Time.time;
-        }
-
-        protected override NodeState OnUpdate(BehaviourTreeRunner runner)
+        protected override NodeState Run(BehaviourTreeRunner runner)
         {
             if (IsTimeOver())
             {
@@ -29,6 +23,6 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         }
 
         private bool IsTimeOver() =>
-            UnityEngine.Time.time - _StartTime >= _Time;
+            UnityEngine.Time.time - StartTime >= _Time;
     }
 }

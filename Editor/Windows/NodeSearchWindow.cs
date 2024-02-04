@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
+using MoshitinEncoded.AI.BehaviourTreeLib;
+
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
+
 using UnityEngine;
-using MoshitinEncoded.AI.BehaviourTreeLib;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
@@ -50,7 +53,7 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             var localMousePosition = _behaviourTreeView.contentViewContainer.ScreenToLocal(_window, context.screenMousePosition);
 
             _behaviourTreeView.CreateNode(
-                nodeType: searchTreeEntry.userData as Type,
+                behaviourType: searchTreeEntry.userData as Type,
                 nodeTitle: searchTreeEntry.content.text,
                 position: localMousePosition);
 
@@ -103,7 +106,7 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 
         private static List<NodeInfo> GetNodesInfo()
         {
-            var nodeTypesCollection = TypeCache.GetTypesDerivedFrom<MoshitinEncoded.AI.BehaviourTreeLib.Node>();
+            var nodeTypesCollection = TypeCache.GetTypesDerivedFrom<NodeBehaviour>();
             var nodesInfo = new List<NodeInfo>();
 
             foreach (var nodeType in nodeTypesCollection)

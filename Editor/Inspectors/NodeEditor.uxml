@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.moshitin-encoded.ai.behaviourtree/Editor/Styles/NodeEditor.uss?fileID=7433441132597879392&amp;guid=5cfc3d3205cb4bb40b452f22aa06e1b8&amp;type=3#NodeEditor" />
+    <ui:TextField picking-mode="Ignore" label="Text Field" value="filler text" name="title-field" />
+</ui:UXML>

@@ -3,6 +3,7 @@ using UnityEngine;
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [CreateNodeMenu("Composite/Sequencer")]
+    [Tooltip("Runs its children until one fails or all succeeds.")]
     public class SequencerNode : CompositeNode
     {
         [SerializeField, Tooltip("Whether to update all nodes in the same frame.")]
@@ -14,14 +15,9 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
             current = 0;
         }
 
-        protected override void OnStop(BehaviourTreeRunner runner)
+        protected override NodeState Run(BehaviourTreeRunner runner)
         {
-
-        }
-
-        protected override NodeState OnUpdate(BehaviourTreeRunner runner)
-        {
-            if (Children.Count < 1)
+            if (Children.Length < 1)
             {
                 return NodeState.Success;
             }
@@ -35,7 +31,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
                     continue;
                 }
 
-                switch (child.UpdateNode(runner))
+                switch (child.RunBehaviour(runner))
                 {
                     case NodeState.Running:
                         return NodeState.Running;
@@ -45,9 +41,9 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
                         current++;
                         break;
                 }
-            } while (_UpdateInTheSameFrame && current < Children.Count);
+            } while (_UpdateInTheSameFrame && current < Children.Length);
 
-            return current == Children.Count ? NodeState.Success : NodeState.Running;
+            return current == Children.Length ? NodeState.Success : NodeState.Running;
         }
     }
 }

@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
-    <Style src="project://database/Packages/com.moshitin-encoded.behaviourgraph/Editor/NodeViewStyle.uss?fileID=7433441132597879392&amp;guid=27eae26c966215f42a71b3ac10072716&amp;type=3#NodeViewStyle" />
+    <Style src="project://database/Packages/com.moshitin-encoded.ai.behaviourtree/Editor/Styles/NodeView.uss?fileID=7433441132597879392&amp;guid=27eae26c966215f42a71b3ac10072716&amp;type=3#NodeView" />
     <ui:VisualElement name="node-state" picking-mode="Ignore" style="flex-grow: 1;" />
     <ui:VisualElement name="node-border">
         <ui:VisualElement name="contents">
@@ -8,7 +8,9 @@
                 <ui:VisualElement name="divider" class="vertical" />
                 <ui:VisualElement name="title">
                     <ui:Label name="title-label" text="RootNode" class="unity-text-element unity-label" />
-                    <ui:VisualElement name="title-button-container">
+                    <ui:Label name="missing-label" text="Missing Node" class="unity-text-element unity-label" />
+                    <ui:TextField picking-mode="Ignore" label="Text Field" value="filler text" name="title-text-field" style="display: flex;" />
+                    <ui:VisualElement name="title-button-container" style="display: none;">
                         <ui:VisualElement name="collapse-button">
                             <ui:VisualElement name="icon" />
                         </ui:VisualElement>
