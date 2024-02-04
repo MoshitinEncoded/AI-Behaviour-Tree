@@ -118,9 +118,9 @@ namespace MoshitinEncoded.AI
         /// <typeparam name="T"> Parameter Type. </typeparam>
         /// <param name="name"> Parameter name as shown on the blackboard. </param>
         /// <returns> The parameter value if found, <b>default</b> otherwise. </returns>
-        public T GetParameter<T>(string name)
+        public T GetParameterValue<T>(string name)
         {
-            var parameter = GetParameterByRef<T>(name);
+            var parameter = GetParameter<T>(name);
             return parameter != null ? parameter.Value : default;
         }
 
@@ -130,9 +130,9 @@ namespace MoshitinEncoded.AI
         /// <typeparam name="T"> Parameter Type. </typeparam>
         /// <param name="name"> Parameter name as shown on the blackboard. </param>
         /// <param name="value"> New parameter value. </param>
-        public void SetParameter<T>(string name, T value)
+        public void SetParameterValue<T>(string name, T value)
         {
-            var parameter = GetParameterByRef<T>(name);
+            var parameter = GetParameter<T>(name);
             if (parameter)
             {
                 parameter.Value = value;
@@ -144,7 +144,7 @@ namespace MoshitinEncoded.AI
         /// </summary>
         /// <param name="name"> Parameter name as shown on the Blackboard. </param>
         /// <returns> The parameter if found, <b>null</b> otherwise. </returns>
-        public BlackboardParameter GetParameterByRef(string name)
+        public BlackboardParameter GetParameter(string name)
         {
             if (_BehaviourTreeInstance == null)
             {
@@ -167,7 +167,7 @@ namespace MoshitinEncoded.AI
         /// <typeparam name="T"> Parameter Type. </typeparam>
         /// <param name="name"> Parameter name as shown on the Blackboard. </param>
         /// <returns> The parameter if found, <b>null</b> otherwise. </returns>
-        public BehaviourTreeParameter<T> GetParameterByRef<T>(string name)
+        public BehaviourTreeParameter<T> GetParameter<T>(string name)
         {
             if (_BehaviourTreeInstance == null)
             {

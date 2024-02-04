@@ -17,7 +17,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         /// <param name="runner"></param>
         public void Bind(BehaviourTreeRunner runner)
         {
-            _Parameter = runner.GetParameterByRef<T>(_Name);
+            _Parameter = runner.GetParameter<T>(_Name);
         }
     }
 }

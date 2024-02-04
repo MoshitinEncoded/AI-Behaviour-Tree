@@ -15,7 +15,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
 
         protected override void OnInitialize(BehaviourTreeRunner runner)
         {
-            _Parameter = runner.GetParameterByRef(_ParameterName);
+            _Parameter = runner.GetParameter(_ParameterName);
         }
 
         protected override NodeState Run(BehaviourTreeRunner runner)
