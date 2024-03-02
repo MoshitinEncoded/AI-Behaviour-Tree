@@ -13,9 +13,12 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
 
         private BlackboardParameter _Parameter;
 
-        protected override void OnInitialize(BehaviourTreeRunner runner)
+        protected override void OnStart(BehaviourTreeRunner runner)
         {
-            _Parameter = runner.GetParameter(_ParameterName);
+            if (_Parameter == null || _Parameter.ParameterName != _ParameterName)
+            {
+                _Parameter = runner.GetParameter(_ParameterName);
+            }
         }
 
         protected override NodeState Run(BehaviourTreeRunner runner)

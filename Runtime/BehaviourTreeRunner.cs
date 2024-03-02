@@ -144,7 +144,7 @@ namespace MoshitinEncoded.AI
         /// </summary>
         /// <param name="name"> Parameter name as shown on the Blackboard. </param>
         /// <returns> The parameter if found, <b>null</b> otherwise. </returns>
-        public BlackboardParameter GetParameter(string name)
+        internal BlackboardParameter GetParameter(string name)
         {
             if (_BehaviourTreeInstance == null)
             {
@@ -167,7 +167,7 @@ namespace MoshitinEncoded.AI
         /// <typeparam name="T"> Parameter Type. </typeparam>
         /// <param name="name"> Parameter name as shown on the Blackboard. </param>
         /// <returns> The parameter if found, <b>null</b> otherwise. </returns>
-        public BehaviourTreeParameter<T> GetParameter<T>(string name)
+        internal BehaviourTreeParameter<T> GetParameter<T>(string name)
         {
             if (_BehaviourTreeInstance == null)
             {
@@ -179,6 +179,7 @@ namespace MoshitinEncoded.AI
             if (parameter == null)
             {
                 LogMissingParameterWarning(name, typeof(T));
+                return null;
             }
 
             if (parameter is BehaviourTreeParameter<T> typedParameter)

@@ -427,7 +427,12 @@ public partial class BehaviourTreeView : GraphView
 
             if (node.Behaviour)
             {
-                Undo.DestroyObjectImmediate(node.Behaviour);
+                var behaviour = node.Behaviour;
+                var serializedNode = new SerializedObject(node);
+                serializedNode.FindProperty("_Behaviour").objectReferenceValue = null;
+                serializedNode.ApplyModifiedProperties();
+                
+                Undo.DestroyObjectImmediate(behaviour);
             }
 
             Undo.DestroyObjectImmediate(node);
