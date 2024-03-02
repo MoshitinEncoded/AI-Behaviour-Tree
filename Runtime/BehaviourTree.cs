@@ -80,7 +80,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         /// Returns a parameter in the Behaviour Tree.
         /// </summary>
         /// <param name="name"> Parameter name as shown on the Blackboard. </param>
-        public BlackboardParameter GetParameter(string name)
+        internal BlackboardParameter GetParameter(string name)
         {
             if (!Blackboard)
             {
@@ -96,7 +96,7 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
         /// Returns a parameter in the Behaviour Tree.
         /// </summary>
         /// <param name="name"> Parameter name as shown on the Blackboard. </param>
-        public BlackboardParameter<T> GetParameter<T>(string name)
+        internal BlackboardParameter<T> GetParameter<T>(string name)
         {
             if (!Blackboard)
             {
