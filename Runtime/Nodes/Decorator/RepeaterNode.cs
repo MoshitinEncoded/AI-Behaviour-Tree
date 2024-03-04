@@ -3,8 +3,8 @@ using UnityEngine;
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
     [CreateNodeMenu("Decorator/Repeater")]
-    [Tooltip("Runs its child forever.")]
-    public class RepeatNode : DecoratorNode
+    [Tooltip("Always returns \"running\".")]
+    public class RepeaterNode : DecoratorNode
     {
         protected override NodeState Run(BehaviourTreeRunner runner)
         {
