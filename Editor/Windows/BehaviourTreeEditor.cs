@@ -28,7 +28,7 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             return false;
         }
 
-        [MenuItem("Window/AI/Behaviour Tree")]
+        [MenuItem("Window/AI/Behaviour Tree (ME)")]
         public static void OpenWindow()
         {
             BehaviourTreeEditor wnd = GetWindow<BehaviourTreeEditor>();

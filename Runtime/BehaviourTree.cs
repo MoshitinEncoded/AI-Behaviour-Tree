@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MoshitinEncoded.AI.BehaviourTreeLib
 {
-    [CreateAssetMenu(fileName = "NewBehaviourTree", menuName = "MoshitinEncoded/Behaviour Tree")]
+    [CreateAssetMenu(fileName = "NewBehaviourTree", menuName = "AI/Behaviour Tree (ME)")]
     public class BehaviourTree : ScriptableObject
     {
 
