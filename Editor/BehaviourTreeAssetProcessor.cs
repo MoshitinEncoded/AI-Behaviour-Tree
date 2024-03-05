@@ -1,38 +1,50 @@
+using System;
+
 using MoshitinEncoded.AI.BehaviourTreeLib;
 using MoshitinEncoded.GraphTools;
+
 using UnityEditor;
+
 using UnityEngine;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
     public class BehaviourTreeAssetProcessor : AssetPostprocessor
     {
+        public static event Action AssetDeleted;
+
         static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
             foreach (var assetPath in importedAssets)
             {
-                if (!assetPath.EndsWith(".asset"))
-                {
-                    continue;
-                }
+                ProcessImportedAsset(assetPath);
+            }
 
-                var behaviourTree = AssetDatabase.LoadAssetAtPath<BehaviourTree>(assetPath);
-                if (!behaviourTree || behaviourTree.RootNode && behaviourTree.Blackboard)
-                {
-                    continue;
-                }
+            foreach (var assetPath in deletedAssets)
+            {
+                ProcessDeletedAsset(assetPath);
+            }
+        }
 
-                var serializedTree = new SerializedObject(behaviourTree);
+        private static void ProcessImportedAsset(string assetPath)
+        {
+            var behaviourTree = GetBehaviourTreeAsset(assetPath);
 
-                if (!behaviourTree.RootNode)
-                {
-                    AddRootNode(behaviourTree, serializedTree);
-                }
+            if (!behaviourTree || behaviourTree.RootNode && behaviourTree.Blackboard)
+            {
+                return;
+            }
 
-                if (!behaviourTree.Blackboard)
-                {
-                    AddBlackboard(behaviourTree, serializedTree);
-                }
+            var serializedTree = new SerializedObject(behaviourTree);
+
+            if (!behaviourTree.RootNode)
+            {
+                AddRootNode(behaviourTree, serializedTree);
+            }
+
+            if (!behaviourTree.Blackboard)
+            {
+                AddBlackboard(behaviourTree, serializedTree);
             }
         }
 
@@ -78,6 +90,26 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             serializedTree.Update();
             serializedTree.FindProperty("_Blackboard").objectReferenceValue = blackboard;
             serializedTree.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void ProcessDeletedAsset(string assetPath)
+        {
+            if (!assetPath.EndsWith(".asset"))
+            {
+                return;
+            }
+
+            AssetDeleted?.Invoke();
+        }
+
+        private static BehaviourTree GetBehaviourTreeAsset(string assetPath)
+        {
+            if (!assetPath.EndsWith(".asset"))
+            {
+                return null;
+            }
+
+            return AssetDatabase.LoadAssetAtPath<BehaviourTree>(assetPath);
         }
     }
 }

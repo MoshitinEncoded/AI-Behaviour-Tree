@@ -1,9 +1,11 @@
-using UnityEditor;
-using UnityEditor.Callbacks;
-using UnityEngine;
-using UnityEngine.UIElements;
 using MoshitinEncoded.AI;
 using MoshitinEncoded.AI.BehaviourTreeLib;
+
+using UnityEditor;
+using UnityEditor.Callbacks;
+
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
 {
@@ -35,6 +37,14 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
             wnd.titleContent = new GUIContent("Behaviour Tree");
         }
 
+        private void OnAssetDeleted()
+        {
+            if (_BehaviourTree == null && !Application.isPlaying)
+            {
+                _TreeView.ClearView();
+            }
+        }
+
         public void CreateGUI()
         {
             // Each editor window contains a root VisualElement object
@@ -58,11 +68,13 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
         {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChange;
             EditorApplication.playModeStateChanged += OnPlayModeStateChange;
+            BehaviourTreeAssetProcessor.AssetDeleted += OnAssetDeleted;
         }
 
         private void OnDisable()
         {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChange;
+            BehaviourTreeAssetProcessor.AssetDeleted -= OnAssetDeleted;
             SaveWindowState();
         }
 

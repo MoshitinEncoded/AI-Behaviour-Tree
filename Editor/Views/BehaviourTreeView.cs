@@ -85,6 +85,15 @@ public partial class BehaviourTreeView : GraphView
         LoadViewTransform();
     }
 
+    public void ClearView()
+    {
+        _BehaviourTree = null;
+        _SerializedTree = null;
+        _RootNodeView = null;
+        ClearGraph();
+        _BlackboardView.ClearView();
+    }
+
     private void ClearGraph()
     {
         graphViewChanged -= OnGraphViewChange;
