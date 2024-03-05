@@ -89,8 +89,19 @@ namespace MoshitinEncoded.Editor.AI.BehaviourTreeLib
                 return;
             }
 
-            var treeJson = EditorPrefs.GetString(_EditorPrefKey);
-            var behaviourTree = treeJson != "" ? JsonUtility.FromJson<BehaviourTree>(treeJson) : null;
+            var treeJson = EditorPrefs.GetString(_EditorPrefKey, "");
+            BehaviourTree behaviourTree;
+
+            try
+            {
+                behaviourTree = treeJson != "" ? JsonUtility.FromJson<BehaviourTree>(treeJson) : null;
+            }
+            catch
+            {
+                EditorPrefs.SetString(_EditorPrefKey, "");
+                behaviourTree = null;
+            }
+
             if (behaviourTree != null)
             {
                 _BehaviourTree = behaviourTree;
