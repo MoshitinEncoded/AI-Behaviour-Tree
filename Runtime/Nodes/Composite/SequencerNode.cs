@@ -6,44 +6,44 @@ namespace MoshitinEncoded.AI.BehaviourTreeLib
     [Tooltip("Runs its children until one fails or all succeeds.")]
     public class SequencerNode : CompositeNode
     {
-        [SerializeField, Tooltip("Whether to update all nodes in the same frame.")]
-        private bool _UpdateInTheSameFrame = false;
+        private int _RunningChildIndex;
 
-        private int current;
         protected override void OnStart(BehaviourTreeRunner runner)
         {
-            current = 0;
+            _RunningChildIndex = 0;
         }
 
         protected override NodeState Run(BehaviourTreeRunner runner)
         {
             if (Children.Length < 1)
             {
-                return NodeState.Success;
+                return NodeState.Failure;
             }
 
-            do
+            var child = Children[_RunningChildIndex];
+            var childState = child.RunBehaviour(runner);
+
+            return childState switch
             {
-                var child = Children[current];
-                if (child == null)
-                {
-                    current++;
-                    continue;
-                }
+                NodeState.Running => NodeState.Running,
+                NodeState.Failure => NodeState.Failure,
+                NodeState.Success => GoToNextChild(),
+                _ => LogInvalidNodeStateException(runner),
+            };
+        }
 
-                switch (child.RunBehaviour(runner))
-                {
-                    case NodeState.Running:
-                        return NodeState.Running;
-                    case NodeState.Failure:
-                        return NodeState.Failure;
-                    case NodeState.Success:
-                        current++;
-                        break;
-                }
-            } while (_UpdateInTheSameFrame && current < Children.Length);
+        private NodeState GoToNextChild()
+        {
+            _RunningChildIndex++;
+            return _RunningChildIndex == Children.Length ? NodeState.Success : NodeState.Running;
+        }
 
-            return current == Children.Length ? NodeState.Success : NodeState.Running;
+        private NodeState LogInvalidNodeStateException(BehaviourTreeRunner runner)
+        {
+            Debug.LogException(
+                new System.InvalidOperationException($"{Node.name} Exception: child's returned state is an invalid enum value."),
+                runner);
+            return NodeState.Failure;
         }
     }
 }
