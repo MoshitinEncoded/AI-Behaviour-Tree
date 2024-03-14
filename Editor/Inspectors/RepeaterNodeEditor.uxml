@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.moshitin-encoded.ai.behaviourtree/Editor/Styles/RepeaterNodeEditor.uss?fileID=7433441132597879392&amp;guid=10ad67d1904ac614493c6f7ab1038ed1&amp;type=3#RepeaterNodeEditor" />
+    <uie:PropertyField name="script" binding-path="m_Script" class="header" />
+    <uie:PropertyField name="stop-mode" binding-path="_StopMode" class="header" />
+    <ui:VisualElement name="repeat-container" style="flex-grow: 1;">
+        <uie:PropertyField name="use-parameter" binding-path="_UseParameter" />
+        <ui:VisualElement name="repeat-times-container" style="flex-grow: 1;">
+            <uie:PropertyField name="repeat-times" binding-path="_RepeatTimes" />
+            <uie:PropertyField name="repeat-times-parameter" binding-path="_RepeatTimesParameter" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <uie:PropertyField name="timer" binding-path="_Timer" />
+</ui:UXML>
